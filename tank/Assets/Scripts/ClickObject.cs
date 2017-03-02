@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class ClickObject : MonoBehaviour {
     private string _currentSoundBtnState = "normal";
@@ -33,7 +34,8 @@ public class ClickObject : MonoBehaviour {
     void onClick(GameObject gameObject)
     {
         SoundManager.instance.playButtonAudio();
-        if(gameObject.name == "soundBtn")
+        string name = gameObject.name;
+        if(name == "soundBtn")
         {
             _currentSoundBtnState = (_currentSoundBtnState == "normal") ? "select" : "normal";
             string btnName = (_currentSoundBtnState == "normal") ? "sound_normal" : "sound_select";
@@ -41,6 +43,9 @@ public class ClickObject : MonoBehaviour {
             btnImage.sprite = Resources.Load("Material/Button/" + btnName, typeof(Sprite)) as Sprite;
             SoundManager.instance.setAudioEffectEnable(_currentSoundBtnState == "normal");
             SoundManager.instance.setAudioMusicEnable(_currentSoundBtnState == "normal");
+        }else if (name == "playBtn")
+        {
+            SceneManager.LoadScene(1);
         }
     }
 }
