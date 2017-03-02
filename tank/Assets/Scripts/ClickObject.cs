@@ -32,19 +32,15 @@ public class ClickObject : MonoBehaviour {
 
     void onClick(GameObject gameObject)
     {
+        SoundManager.instance.playButtonAudio();
         if(gameObject.name == "soundBtn")
         {
             _currentSoundBtnState = (_currentSoundBtnState == "normal") ? "select" : "normal";
             string btnName = (_currentSoundBtnState == "normal") ? "sound_normal" : "sound_select";
             Image btnImage = gameObject.GetComponent<Image>();
             btnImage.sprite = Resources.Load("Material/Button/" + btnName, typeof(Sprite)) as Sprite;
-            if(_currentSoundBtnState == "normal")
-            {
-                Debug.Log("click normal");
-            }else
-            {
-                Debug.Log("click select");
-            }
+            SoundManager.instance.setAudioEffectEnable(_currentSoundBtnState == "normal");
+            SoundManager.instance.setAudioMusicEnable(_currentSoundBtnState == "normal");
         }
     }
 }
