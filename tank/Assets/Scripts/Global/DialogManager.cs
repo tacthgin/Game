@@ -4,22 +4,14 @@ using UnityEngine;
 
 public class DialogManager : MonoBehaviour
 {
-    private List<GameObject> _dialogList = new List<GameObject>();
+    private Dictionary<string, GameObject> _dialogMap = new Dictionary<string, GameObject>();
+    private List<string> _dialogNameList = new List<string>();
     private string _dialogRootDir = "Prefabs/Dialogs/";
     private string _dialogBgName = "DialogBg";
 
     public static string StoreDialog = "ScoreDialog";
 
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
-    GameObject getDialog(string name)
+    GameObject GetDialog(string name)
     {
         GameObject dialog = (GameObject)Instantiate(Resources.Load(_dialogRootDir + name));
         if(dialog != null)
@@ -32,12 +24,26 @@ public class DialogManager : MonoBehaviour
         return null;
     }
 
-    public void showDialog(string name)
+    public void ShowDialog(string name)
     {
-        GameObject dialog = getDialog(name);
+        GameObject dialog = GetDialog(name);
         if(dialog != null)
         {
-            
+            _dialogMap.Add(name, dialog);
+            _dialogNameList.Add(name);
+        }
+    }
+
+    public void CloseDialog()
+    {
+        if (_dialogNameList.Count == 0) return;
+        int lastIndex = _dialogNameList.Count - 1;
+        string lastDialogName = _dialogNameList[lastIndex];
+        if(lastDialogName != null)
+        {
+            _dialogNameList.Remove(lastDialogName);
+            GameObject dialog = _dialogMap[lastDialogName];
+            Destroy(dialog);
         }
     }
 }

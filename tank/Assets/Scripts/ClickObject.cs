@@ -25,11 +25,6 @@ public class ClickObject : MonoBehaviour {
             });
         }
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
     void onClick(GameObject gameObject)
     {
@@ -46,6 +41,9 @@ public class ClickObject : MonoBehaviour {
         }else if (name == "playBtn")
         {
             SceneManager.LoadScene(1);
+        }else
+        {
+            GameManager.instance.dialogManager.ShowDialog(DialogManager.StoreDialog);
         }
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour {
     public static GameManager instance = null;
+    public DialogManager _dialogManager;
 
 	void Awake ()
     {
@@ -14,4 +15,10 @@ public class GameManager : MonoBehaviour {
 
         DontDestroyOnLoad(gameObject);
 	}
+
+    public DialogManager dialogManager
+    {
+        get { return _dialogManager; }
+        set { }
+    }
 }
