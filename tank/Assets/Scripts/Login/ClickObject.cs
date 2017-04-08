@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class ClickObject : MonoBehaviour {
     private string _currentSoundBtnState = "normal";
-	// Use this for initialization
+
 	void Start ()
     {
         string[] btnNameList = {
@@ -28,7 +28,7 @@ public class ClickObject : MonoBehaviour {
 
     void onClick(GameObject gameObject)
     {
-        SoundManager.instance.playButtonAudio();
+        SoundManager.instance.PlayButtonAudio();
         string name = gameObject.name;
         if(name == "soundBtn")
         {
@@ -36,8 +36,8 @@ public class ClickObject : MonoBehaviour {
             string btnName = (_currentSoundBtnState == "normal") ? "sound_normal" : "sound_select";
             Image btnImage = gameObject.GetComponent<Image>();
             btnImage.sprite = Resources.Load("Material/Button/" + btnName, typeof(Sprite)) as Sprite;
-            SoundManager.instance.setAudioEffectEnable(_currentSoundBtnState == "normal");
-            SoundManager.instance.setAudioMusicEnable(_currentSoundBtnState == "normal");
+            SoundManager.instance.SetAudioEffectEnable(_currentSoundBtnState == "normal");
+            SoundManager.instance.SetAudioMusicEnable(_currentSoundBtnState == "normal");
         }else if (name == "playBtn")
         {
             SceneManager.LoadScene(1);

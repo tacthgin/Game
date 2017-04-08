@@ -14,6 +14,10 @@ public class GameManager : MonoBehaviour {
             Destroy(gameObject);
 
         DontDestroyOnLoad(gameObject);
+
+        GameObject dialogManager = (GameObject)Instantiate(Resources.Load("Prefabs/Dialogs/DialogManager"));
+        dialogManager.transform.parent = instance.transform;
+        _dialogManager = dialogManager.GetComponent<DialogManager>();
 	}
 
     public DialogManager dialogManager

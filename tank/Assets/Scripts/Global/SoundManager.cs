@@ -23,7 +23,7 @@ public class SoundManager : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
 	}
 
-    public void playMusic(AudioClip clip)
+    public void PlayMusic(AudioClip clip)
     {
         if (!_isPlayingMusic)
             return;
@@ -31,7 +31,7 @@ public class SoundManager : MonoBehaviour {
         musicSource.Play();
     }
 
-    public void playAudioClip(AudioClip clip)
+    public void PlayAudioClip(AudioClip clip)
     {
         if (!_isPlayingEffect)
             return;
@@ -39,17 +39,17 @@ public class SoundManager : MonoBehaviour {
         effectSource.Play();
     }
 
-    public void playButtonAudio()
+    public void PlayButtonAudio()
     {
-        playAudioClip(buttonClip);
+        PlayAudioClip(buttonClip);
     }
 
-    public void setAudioEffectEnable(bool enable)
+    public void SetAudioEffectEnable(bool enable)
     {
         _isPlayingEffect = enable;
     }
 
-    public void setAudioMusicEnable(bool enable)
+    public void SetAudioMusicEnable(bool enable)
     {
         _isPlayingMusic = enable;
     }
