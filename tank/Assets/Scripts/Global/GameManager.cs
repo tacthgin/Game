@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour {
     public static GameManager instance = null;
-    public DialogManager _dialogManager;
+    public GameObject scriptsLoader = null;
+    private DialogManager _dialogManager;
+    private ReadJson _readJson;
 
 	void Awake ()
     {
@@ -15,14 +17,19 @@ public class GameManager : MonoBehaviour {
 
         DontDestroyOnLoad(gameObject);
 
-        GameObject dialogManager = (GameObject)Instantiate(Resources.Load("Prefabs/Dialogs/DialogManager"));
-        dialogManager.transform.parent = instance.transform;
-        _dialogManager = dialogManager.GetComponent<DialogManager>();
+        _dialogManager = scriptsLoader.GetComponent<DialogManager>();
+        _readJson = scriptsLoader.GetComponent<ReadJson>();
 	}
 
     public DialogManager dialogManager
     {
         get { return _dialogManager; }
+        set { }
+    }
+
+    public ReadJson readJson
+    {
+        get { return _readJson; }
         set { }
     }
 }
