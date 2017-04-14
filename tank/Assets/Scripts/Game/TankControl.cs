@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TankControl : MonoBehaviour {
+    public int tankId;
+    private TankInfo _tankInfo = null;
 
-	// Use this for initialization
-	void Start () {
-		
+	void Start ()
+    {
+        _tankInfo = GameManager.instance.readJson.getInfo<TankInfo>(ReadJson.DataType.TANK_INFO, tankId);
 	}
 	
-	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
 		
 	}
 }
