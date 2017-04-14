@@ -11,6 +11,11 @@ public class DialogManager : MonoBehaviour
 
     public static string StoreDialog = "ScoreDialog";
 
+    void Start()
+    {
+        Debug.Log("hello");
+    }
+
     GameObject GetDialog(string name)
     {
         GameObject dialog = (GameObject)Instantiate(Resources.Load(_dialogRootDir + name));

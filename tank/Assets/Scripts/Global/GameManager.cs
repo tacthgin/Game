@@ -17,8 +17,10 @@ public class GameManager : MonoBehaviour {
 
         DontDestroyOnLoad(gameObject);
 
-        _dialogManager = scriptsLoader.GetComponent<DialogManager>();
-        _readJson = scriptsLoader.GetComponent<ReadJson>();
+        GameObject s = Instantiate(scriptsLoader);
+        s.transform.parent = gameObject.transform;
+        _dialogManager = s.GetComponent<DialogManager>();
+        _readJson = s.GetComponent<ReadJson>();
 	}
 
     public DialogManager dialogManager

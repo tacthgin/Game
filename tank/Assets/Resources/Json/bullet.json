@@ -1,0 +1,53 @@
+{
+    "array": [
+        {
+            "id": 1,
+            "power": 1,
+            "speed": 10,
+            "armor": false,
+            "imageId": 1
+        },
+        {
+            "id": 1,
+            "power": 1,
+            "speed": 12,
+            "armor": false,
+            "imageId": 1
+        },
+        {
+            "armor": true,
+            "id": 1,
+            "imageId": 1,
+            "power": 1,
+            "speed": 15
+        },
+        {
+            "id": 1,
+            "power": 1,
+            "speed": 10,
+            "armor": false,
+            "imageId": 2
+        },
+        {
+            "id": 1,
+            "power": 1,
+            "speed": 12,
+            "armor": false,
+            "imageId": 2
+        },
+        {
+            "id": 1,
+            "power": 1,
+            "speed": 15,
+            "armor": true,
+            "imageId": 2
+        },
+        {
+            "id": 1,
+            "power": 1,
+            "speed": 8,
+            "armor": false,
+            "imageId": 3
+        }
+    ]
+}
