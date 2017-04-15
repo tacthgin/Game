@@ -5,10 +5,11 @@ using UnityEngine;
 public class TankControl : MonoBehaviour {
     public int tankId;
     private TankInfo _tankInfo = null;
-
+    private BulletInfo _bulletInfo = null;
 	void Start ()
     {
-        _tankInfo = GameManager.instance.readJson.getInfo<TankInfo>(ReadJson.DataType.TANK_INFO, tankId);
+        ReadJson readJson = GameManager.instance.readJson;
+        _tankInfo = (TankInfo)readJson.getInfo<TankInfo>(DataType.TANK_INFO, tankId).Clone();
 	}
 	
 	void Update ()

@@ -1,43 +1,59 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+public enum DataType
+{
+    TANK_INFO,
+    BULLET_INFO,
+    LEVEL_TANK_INFO
+}
+
+[System.Serializable]
+public class TankInfo : ICloneable
+{
+    public int id = 0;
+    public int speed = 0;
+    public int blood = 0;
+    public int shootTime = 0;
+    public int bulletType = 0;
+    public int score = 0;
+
+    public object Clone()
+    {
+        return this.MemberwiseClone();
+    }
+}
+
+[System.Serializable]
+public class BulletInfo : ICloneable
+{
+    public int id = 0;
+    public int power = 0;
+    public int speed = 0;
+    public bool armor = false;
+    public int imageId = 0;
+    public object Clone()
+    {
+        return this.MemberwiseClone();
+    }
+}
+
+[System.Serializable]
+public class LevelTankInfo : ICloneable
+{
+    public int[] array = null;
+    public object Clone()
+    {
+        LevelTankInfo cloneObject = new LevelTankInfo();
+        array.CopyTo(cloneObject.array, 0);
+        return cloneObject;
+    }
+}
+
 public class ReadJson : MonoBehaviour {
-    public enum DataType
-    {
-        TANK_INFO,
-        BULLET_INFO,
-        LEVEL_TANK_INFO
-    }
-
-    [System.Serializable]
-    public class TankInfo
-    {
-        public int id = 0;
-        public int speed = 0;
-        public int blood = 0;
-        public int shootTime = 0;
-        public int bulletType = 0;
-        public int score = 0;
-    }
-
-    [System.Serializable]
-    public class BulletInfo
-    {
-        public int id = 0;
-        public int power = 0;
-        public int speed = 0;
-        public bool armor = false;
-        public int imageId = 0;
-    }
-
-    [System.Serializable]
-    public class LevelTankInfo
-    {
-        public int[] array = null;
-    }
-
     [System.Serializable]
     private class Wrapper<T>
     {
@@ -80,5 +96,16 @@ public class ReadJson : MonoBehaviour {
         }
 
         return default(T);
+    }
+
+    public int getInfoLength(DataType type)
+    {
+        ArrayList array = _arrayDictionary[type];
+        if(array != null)
+        {
+            return array.Count;
+        }
+
+        return 0;
     }
 }
