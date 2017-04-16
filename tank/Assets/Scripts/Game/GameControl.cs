@@ -32,7 +32,7 @@ public class GameControl : MonoBehaviour{
         _joystickCenter = GameObject.Find("joystickCenter");
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         
     }
