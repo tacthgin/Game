@@ -8,14 +8,18 @@ public class ChessBoard : MonoBehaviour
     private float[] yLocation = { 2.8f, 2.178f, 1.556f, 0.934f, 0.312f, -0.31f, -0.932f, -1.554f, -2.176f, -2.8f};
     private float squareDelta = 0.622f;
     private Dictionary<int, GameObject> pieceDict = new Dictionary<int, GameObject>();
-
+    private GameObject selectSprite;
 
     [SerializeField]
     private GameObject[] pieceGameObject;
+    [SerializeField]
+    private GameObject selectGameObject;
+
     private ChessLogic chessLogic = new ChessLogic();
 
     void Start ()
     {
+        createSelect();
         chessLogic.init();
         drawBoard(chessLogic.CurrentChessBoard);
 	}
@@ -26,8 +30,28 @@ public class ChessBoard : MonoBehaviour
         {
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
             Debug.Log(hit.point);
+            selectPiece(hit.point);
         }
 	}
+
+    void createSelect()
+    {
+        if(selectSprite == null)
+        {
+            selectSprite = Instantiate(selectGameObject);
+            selectSprite.transform.parent = transform;
+            selectSprite.SetActive(false);
+        }
+    }
+
+    void showSelect(bool visible, int x = 0, int y = 0)
+    {
+        selectSprite.SetActive(visible);
+        if (visible)
+        {
+            selectSprite.transform.position = new Vector2(xLocation[x], yLocation[y]);
+        }
+    }
 
     void drawBoard(int[] board)
     {
@@ -42,6 +66,53 @@ public class ChessBoard : MonoBehaviour
                     addPiece(pieceId, i, j);
                 }
             }
+        }
+    }
+
+    Vector2 getPostionByHit(Vector2 point)
+    {
+        int selectX = -1;
+        int selectY = -1;
+        float halfDelta = squareDelta / 2;
+        for (int i = 0; i < xLocation.Length; i++)
+        {
+            float location = xLocation[i];
+            if (point.x < location + halfDelta && point.x > location - halfDelta)
+            {
+                selectX = i;
+                break;
+            }
+        }
+
+        for(int i = 0; i < yLocation.Length; i++)
+        {
+            float location = yLocation[i];
+            if (point.y < location + halfDelta && point.y > location - halfDelta)
+            {
+                selectY = i;
+                break;
+            }
+        }
+
+        if(selectX != -1 && selectY != -1)
+        {
+            return new Vector2(selectX, selectY);
+        }
+
+        return Vector2.zero;
+    }
+
+    void selectPiece(Vector2 point)
+    {
+        Vector2 pos = getPostionByHit(point);
+        if (pos != Vector2.zero)
+        {
+            int x = (int)pos.x;
+            int y = (int)pos.y;
+            if (pieceDict.ContainsKey(chessLogic.CoordXY(x + ChessLogic.COLUMN_LEFT, y + ChessLogic.ROW_TOP)))
+            {
+                showSelect(true, x, y);
+            }  
         }
     }
 
