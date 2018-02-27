@@ -7,7 +7,7 @@ public class ChessBoard : MonoBehaviour
     private float[] xLocation = { -2.488f, -1.866f, -1.244f, -0.622f, 0.0f, 0.622f, 1.244f, 1.866f, 2.488f };
     private float[] yLocation = { 2.8f, 2.178f, 1.556f, 0.934f, 0.312f, -0.31f, -0.932f, -1.554f, -2.176f, -2.8f};
     private float squareDelta = 0.622f;
-    private Dictionary<int, GameObject> pieceDict = new Dictionary<int, GameObject>();
+    private Dictionary<Vector2, GameObject> pieceDict = new Dictionary<Vector2, GameObject>();
     private GameObject selectSprite;
 
     [SerializeField]
@@ -19,10 +19,11 @@ public class ChessBoard : MonoBehaviour
 
     void Start ()
     {
-        createSelect();
-        chessLogic.init();
-        drawBoard(chessLogic.CurrentChessBoard);
-	}
+        chessLogic.Init();
+        chessLogic.drawSelectHandle += ShowSelect;
+        chessLogic.movePieceHandle += MovePiece;
+        InitView();
+    }
 
 	void Update ()
     {
@@ -30,11 +31,11 @@ public class ChessBoard : MonoBehaviour
         {
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
             Debug.Log(hit.point);
-            selectPiece(hit.point);
+            SelectPiece(hit.point);
         }
 	}
 
-    void createSelect()
+    void InitView()
     {
         if(selectSprite == null)
         {
@@ -42,18 +43,19 @@ public class ChessBoard : MonoBehaviour
             selectSprite.transform.parent = transform;
             selectSprite.SetActive(false);
         }
+        DrawBoard(chessLogic.MySituation.CurrentBoard);
     }
 
-    void showSelect(bool visible, int x = 0, int y = 0)
+    void ShowSelect(bool visible, int x = 0, int y = 0)
     {
         selectSprite.SetActive(visible);
         if (visible)
         {
-            selectSprite.transform.position = new Vector2(xLocation[x], yLocation[y]);
+            selectSprite.transform.position = new Vector2(xLocation[x - ChessLogic.COLUMN_LEFT], yLocation[y - ChessLogic.ROW_TOP]);
         }
     }
 
-    void drawBoard(int[] board)
+    void DrawBoard(byte[] board)
     {
         for(int i = ChessLogic.COLUMN_LEFT; i <= ChessLogic.COLUMN_RIGHT; ++i)
         {
@@ -62,14 +64,13 @@ public class ChessBoard : MonoBehaviour
                 int pc = board[chessLogic.CoordXY(i, j)];
                 if(pc != 0)
                 {
-                    int pieceId = chessLogic.PieceTag(pc);
-                    addPiece(pieceId, i, j);
+                    AddPiece(pc, new Vector2(i, j));
                 }
             }
         }
     }
 
-    Vector2 getPostionByHit(Vector2 point)
+    Vector2 GetPostionByHit(Vector2 point)
     {
         int selectX = -1;
         int selectY = -1;
@@ -102,55 +103,63 @@ public class ChessBoard : MonoBehaviour
         return Vector2.zero;
     }
 
-    void selectPiece(Vector2 point)
+    void SelectPiece(Vector2 point)
     {
-        Vector2 pos = getPostionByHit(point);
+        Vector2 pos = GetPostionByHit(point);
         if (pos != Vector2.zero)
         {
-            int x = (int)pos.x;
-            int y = (int)pos.y;
-            if (pieceDict.ContainsKey(chessLogic.CoordXY(x + ChessLogic.COLUMN_LEFT, y + ChessLogic.ROW_TOP)))
-            {
-                showSelect(true, x, y);
-            }  
+            int x = (int)pos.x + ChessLogic.COLUMN_LEFT;
+            int y = (int)pos.y + ChessLogic.ROW_TOP;
+
+            chessLogic.ClickSquare(x, y);
         }
     }
 
-    void setPiecePosition(GameObject piece, int x, int y)
+    void SetPiecePosition(GameObject piece, Vector2 boardPosition)
     {
-        piece.transform.position = new Vector2(xLocation[x - ChessLogic.COLUMN_LEFT], yLocation[y - ChessLogic.ROW_TOP]);
+        piece.transform.position = new Vector2(xLocation[(int)boardPosition.x - ChessLogic.COLUMN_LEFT], yLocation[(int)boardPosition.y - ChessLogic.ROW_TOP]);
     }
 
-    void addPiece(int pieceId, int x, int y)
+    int ChangePcToPieceId(int pc)
     {
-        GameObject piece = Instantiate(pieceGameObject[pieceId]);
+        if(chessLogic.Red(pc))
+        {
+            return pc % 8;
+        }
+
+        return pc % 8 + 7;
+    }
+
+    void AddPiece(int pc, Vector2 position)
+    {
+        GameObject piece = Instantiate(pieceGameObject[ChangePcToPieceId(pc)]);
         piece.transform.parent = transform;
-        setPiecePosition(piece, x, y);
-        pieceDict.Add(chessLogic.CoordXY(x, y), piece);
+        SetPiecePosition(piece, position);
+        pieceDict.Add(position, piece);
     }
 
-    void movePiece(int srcX, int srcY, int dstX, int dstY)
+    void MovePiece(Vector2 srcPostion, Vector2 dstPostion)
     {
-        int srcKey = chessLogic.CoordXY(srcX, srcY);
-        if(pieceDict.ContainsKey(srcKey))
+        if(pieceDict.ContainsKey(srcPostion))
         {
-            GameObject piece = pieceDict[srcKey];
-            pieceDict.Remove(srcKey);
+            GameObject piece = pieceDict[srcPostion];
+            pieceDict.Remove(srcPostion);
 
-            int dstKey = chessLogic.CoordXY(dstX, dstY);
-            pieceDict[dstKey] = piece;
-            setPiecePosition(piece, dstX, dstY);
+            if(pieceDict.ContainsKey(dstPostion))
+            {
+                EatPiece(dstPostion);
+            }
+            pieceDict[dstPostion] = piece;
+            SetPiecePosition(piece, dstPostion);
         }
     }
 
-    void eatPiece(int x, int y)
+    void EatPiece(Vector2 position)
     {
-        int key = chessLogic.CoordXY(x, y);
-        if (pieceDict.ContainsKey(key))
+        if (pieceDict.ContainsKey(position))
         {
-            GameObject piece = pieceDict[key];
-            Destroy(piece);
-            pieceDict.Remove(key);
+            Destroy(pieceDict[position]);
+            pieceDict.Remove(position);
         }
     }
 }
