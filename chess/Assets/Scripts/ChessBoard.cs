@@ -64,7 +64,7 @@ public class ChessBoard : MonoBehaviour
     /// 画整幅棋子
     /// </summary>
     /// <param name="board"></param>
-    void DrawBoard(byte[] board)
+    void DrawBoard(sbyte[] board)
     {
         for(int i = ChessLogic.COLUMN_LEFT; i <= ChessLogic.COLUMN_RIGHT; ++i)
         {

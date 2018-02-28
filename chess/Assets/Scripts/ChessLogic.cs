@@ -23,9 +23,131 @@ public class ChessLogic
     public int PIECE_PAWN = 6;
 
     /// <summary>
+    /// 判断棋子是否在棋盘中
+    /// </summary>
+    private readonly sbyte[] chessInBoard = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    /// <summary>
+    /// 判断棋子是否在九宫
+    /// </summary>
+    private readonly sbyte[] chessInFort = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    /// <summary>
+    /// 判断步长是否符合特定走法，1=帅，2=士，3=相
+    /// </summary>
+    private readonly sbyte[] legalSpan = {
+                             0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0
+    };
+
+    /// <summary>
+    /// 根据步长判断马是否憋腿
+    /// </summary>
+    private readonly sbyte[] knightPin = {
+            0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,-16,  0,-16,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0, -1,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0, -1,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0, 16,  0, 16,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+        0,  0,  0,  0,  0,  0,  0
+    };
+
+    /// <summary>
     /// 初始棋盘
     /// </summary>
-    private byte[] startupChessBoard= {
+    private readonly sbyte[] startupChessBoard= {
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -43,6 +165,46 @@ public class ChessLogic
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
     };
+
+    /// <summary>
+    /// 帅(将)的步长
+    /// </summary>
+    private readonly sbyte[] kingDelta = { -16, -1, 1, 16 };
+
+    /// <summary>
+    /// 士的步长
+    /// </summary>
+    private readonly sbyte[] advisorDelta = { -17, -15, 15, 17 };
+
+    /// <summary>
+    /// 马的步长，以帅的步长作为马腿
+    /// </summary>
+    private readonly sbyte[,] knightDelta = new sbyte[4, 2] { { -33, -31 }, { -18, 14 }, { -14, 18 }, { 31, 33 } };
+
+    /// <summary>
+    /// 马的步长，以士的步长作为马腿
+    /// </summary>
+    private readonly sbyte[,] knightCheckDelta = new sbyte[4, 2] { { -33, -18 }, { -31, -14 }, { 14, 31 }, { 18, 33 } };
+
+    /// <summary>
+    /// 判断棋子是否在棋盘中
+    /// </summary>
+    /// <param name="sq"></param>
+    /// <returns></returns>
+    public bool InBoard(int sq)
+    {
+        return chessInBoard[sq] != 0;
+    }
+
+    /// <summary>
+    /// 判断棋子是否在九宫中
+    /// </summary>
+    /// <param name="sq"></param>
+    /// <returns></returns>
+    public bool InFort(int sq)
+    {
+        return chessInFort[sq] != 0;
+    }
 
     /// <summary>
     /// 获得格子的横坐标
@@ -76,12 +238,132 @@ public class ChessLogic
     }
 
     /// <summary>
+    /// 走法是否符合帅的步长
+    /// </summary>
+    /// <param name="sqSrc"></param>
+    /// <param name="sqDst"></param>
+    /// <returns></returns>
+    public bool KingSpan(int sqSrc, int sqDst)
+    {
+        return legalSpan[sqDst - sqSrc + 256] == 1;
+    }
+
+    /// <summary>
+    /// 走法是否符合士的步长
+    /// </summary>
+    /// <param name="sqSrc"></param>
+    /// <param name="sqDst"></param>
+    /// <returns></returns>
+    public bool AdvisorSpan(int sqSrc, int sqDst)
+    {
+        return legalSpan[sqDst - sqSrc + 256] == 2;
+    }
+
+    /// <summary>
+    /// 走法是否符合象的步长
+    /// </summary>
+    /// <param name="sqSrc"></param>
+    /// <param name="sqDst"></param>
+    /// <returns></returns>
+    public bool BishopSpan(int sqSrc, int sqDst)
+    {
+        return legalSpan[sqDst - sqSrc + 256] == 3;
+    }
+
+    /// <summary>
+    /// 象眼的位置
+    /// </summary>
+    /// <param name="sqSrc"></param>
+    /// <param name="sqDst"></param>
+    /// <returns></returns>
+    public int BishopPin(int sqSrc, int sqDst)
+    {
+        return (sqSrc + sqDst) >> 1;
+    }
+
+    /// <summary>
+    /// 马腿的位置
+    /// </summary>
+    /// <param name="sqSrc"></param>
+    /// <param name="sqDst"></param>
+    /// <returns></returns>
+    public int KnightPin(int sqSrc, int sqDst)
+    {
+        return sqSrc + knightPin[sqDst - sqSrc + 256];
+    }
+
+    /// <summary>
+    /// 是否未过河
+    /// </summary>
+    /// <param name="sq"></param>
+    /// <param name="sd"></param>
+    /// <returns></returns>
+    public bool HomeHalf(int sq, int sd)
+    {
+        return (sq & 0x80) != (sd << 7);
+    }
+
+    /// <summary>
+    /// 是否已过河
+    /// </summary>
+    /// <param name="sq"></param>
+    /// <param name="sd"></param>
+    /// <returns></returns>
+    public bool AwayHalf(int sq, int sd)
+    {
+        return (sq & 0x80) == (sd << 7);
+    }
+
+    /// <summary>
+    /// 是否在河的同一边
+    /// </summary>
+    /// <param name="sqSrc"></param>
+    /// <param name="sqDst"></param>
+    /// <returns></returns>
+    public bool SameHalf(int sqSrc, int sqDst)
+    {
+        return ((sqSrc ^ sqDst) & 0x80) == 0;
+    }
+
+    /// <summary>
+    /// 是否在同一行(低位不同)
+    /// </summary>
+    /// <param name="sqSrc"></param>
+    /// <param name="sqDst"></param>
+    /// <returns></returns>
+    public bool SameRow(int sqSrc, int sqDst)
+    {
+        return ((sqSrc ^ sqDst) & 0xf0) == 0;
+    }
+
+    /// <summary>
+    /// 是否在同一列
+    /// </summary>
+    /// <param name="sqSrc"></param>
+    /// <param name="sqDst"></param>
+    /// <returns></returns>
+    public bool SameColumn(int sqSrc, int sqDst)
+    {
+        return ((sqSrc ^ sqDst) & 0x0f) == 0;
+    }
+
+    /// <summary>
     /// 获得红黑标记(8是红，16是黑)
     /// </summary>
     /// <param name="sd"></param>
     public int SideTag(int sd)
     {
         return 8 + (sd << 3);
+    }
+
+    /// <summary>
+    /// 获得对方红黑标记
+    /// </summary>
+    /// <param name="sd"></param>
+    /// <returns></returns>
+    public int oppSideTag(int sd)
+    {
+        return 16 - (sd << 3);
     }
 
     /// <summary>
@@ -132,11 +414,11 @@ public class ChessLogic
         /// <summary>
         /// 棋盘
         /// </summary>
-        private byte[] currentBoard = new byte[256];
+        private sbyte[] currentBoard = new sbyte[256];
 
         private ChessLogic logic;
 
-        public byte[] CurrentBoard
+        public sbyte[] CurrentBoard
         {
             set { }
             get { return currentBoard; }
