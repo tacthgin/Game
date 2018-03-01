@@ -14,13 +14,15 @@ public class ChessLogic
     /// <summary>
     /// 棋子的编号
     /// </summary>
-    public int PIECE_KING = 0;
-    public int PIECE_ADVISOR = 1;
-    public int PIECE_BISHOP = 2;
-    public int PIECE_KNIGHT = 3;
-    public int PIECE_ROOK = 4;
-    public int PIECE_CANNON = 5;
-    public int PIECE_PAWN = 6;
+    public const int PIECE_KING = 0;
+    public const int PIECE_ADVISOR = 1;
+    public const int PIECE_BISHOP = 2;
+    public const int PIECE_KNIGHT = 3;
+    public const int PIECE_ROOK = 4;
+    public const int PIECE_CANNON = 5;
+    public const int PIECE_PAWN = 6;
+
+    public const int MAX_GENERATE_MOVES = 128;
 
     /// <summary>
     /// 判断棋子是否在棋盘中
@@ -169,22 +171,22 @@ public class ChessLogic
     /// <summary>
     /// 帅(将)的步长
     /// </summary>
-    private readonly sbyte[] kingDelta = { -16, -1, 1, 16 };
+    public readonly sbyte[] kingDelta = { -16, -1, 1, 16 };
 
     /// <summary>
     /// 士的步长
     /// </summary>
-    private readonly sbyte[] advisorDelta = { -17, -15, 15, 17 };
+    public readonly sbyte[] advisorDelta = { -17, -15, 15, 17 };
 
     /// <summary>
     /// 马的步长，以帅的步长作为马腿
     /// </summary>
-    private readonly sbyte[,] knightDelta = new sbyte[4, 2] { { -33, -31 }, { -18, 14 }, { -14, 18 }, { 31, 33 } };
+    public readonly sbyte[,] knightDelta = new sbyte[4, 2] { { -33, -31 }, { -18, 14 }, { -14, 18 }, { 31, 33 } };
 
     /// <summary>
     /// 马的步长，以士的步长作为马腿
     /// </summary>
-    private readonly sbyte[,] knightCheckDelta = new sbyte[4, 2] { { -33, -18 }, { -31, -14 }, { 14, 31 }, { 18, 33 } };
+    public readonly sbyte[,] knightCheckDelta = new sbyte[4, 2] { { -33, -18 }, { -31, -14 }, { 14, 31 }, { 18, 33 } };
 
     /// <summary>
     /// 判断棋子是否在棋盘中
@@ -235,6 +237,17 @@ public class ChessLogic
     public int CoordXY(int x, int y)
     {
         return x + (y << 4);
+    }
+
+    /// <summary>
+    /// 棋子向前走一步
+    /// </summary>
+    /// <param name="sq"></param>
+    /// <param name="sd"></param>
+    /// <returns></returns>
+    public int SquareForward(int sq, int sd)
+    {
+        return sq - 16 + (sd << 5);
     }
 
     /// <summary>
@@ -434,7 +447,7 @@ public class ChessLogic
         /// 初始化棋盘
         /// </summary>
         /// <param name="startBoard">初始棋盘设置</param>
-        public void Init(ChessLogic chessLogic, byte[] startBoard)
+        public void Init(ChessLogic chessLogic, sbyte[] startBoard)
         {
             sdPlayer = 0;
             startBoard.CopyTo(currentBoard, 0);
@@ -456,7 +469,7 @@ public class ChessLogic
         /// <param name="pc">棋子的值</param>
         public void AddPiece(int sq, int pc)
         {
-            currentBoard[sq] = (byte)pc;
+            currentBoard[sq] = (sbyte)pc;
         }
 
         /// <summary>
@@ -472,14 +485,18 @@ public class ChessLogic
         /// 搬一步棋的棋子
         /// </summary>
         /// <param name="mv"></param>
-        public void MovePiece(int mv)
+        /// <returns></returns>
+        public int MovePiece(int mv)
         {
-            int sqSrc, sqDst, pc;
+            int sqSrc, sqDst;
             sqSrc = logic.Src(mv);
             sqDst = logic.Dst(mv);
-            pc = currentBoard[sqSrc];
+            sbyte pcCaptured = currentBoard[sqDst];
+            DeletePiece(sqDst);
+            sbyte pc = currentBoard[sqSrc];
             DeletePiece(sqSrc);
             AddPiece(sqDst, pc);
+            return pcCaptured;
         }
 
         /// <summary>
@@ -490,6 +507,373 @@ public class ChessLogic
         {
             MovePiece(mv);
             ChangeSide();
+        }
+
+        int GenerateMoves(out int[] mvs)
+        {
+            int genMoves = 0;
+            int pcSelfSide = logic.SideTag(sdPlayer);
+            int pcOppSide = logic.oppSideTag(sdPlayer);
+
+            int pcSrc = 0;
+            int pcDst = 0;
+            int sqDst = 0;
+            int[] tempMvs = new int[MAX_GENERATE_MOVES];
+            for(int sqSrc = 0; sqSrc < currentBoard.Length; sqSrc++)
+            {
+                //找到一个本方棋子，再做以下判断
+                pcSrc = currentBoard[sqSrc];
+                if((pcSrc & pcSelfSide) == 0)
+                {
+                    continue;
+                }
+
+                //根据棋子确定走法
+                switch(pcSrc - pcSelfSide)
+                {
+                    case PIECE_KING:
+                        {
+                            for (int i = 0; i < logic.kingDelta.Length; i++)
+                            {
+                                sqDst = sqSrc + logic.kingDelta[i];
+                                if (!logic.InFort(sqDst))
+                                {
+                                    continue;
+                                }
+                                pcDst = currentBoard[sqDst];
+                                //走到不是有自己棋子的地方
+                                if((pcDst & pcSelfSide) == 0)
+                                {
+                                    tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                    ++genMoves;
+                                }
+                            }
+                        }
+                        break;
+                    case PIECE_ADVISOR:
+                        {
+                            for (int i = 0; i < logic.advisorDelta.Length; i++)
+                            {
+                                sqDst = sqSrc + logic.advisorDelta[i];
+                                if (!logic.InFort(sqDst))
+                                {
+                                    continue;
+                                }
+                                pcDst = currentBoard[sqDst];
+                                if ((pcDst & pcSelfSide) == 0)
+                                {
+                                    tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                    ++genMoves;
+                                }
+                            }
+                        }
+                        break;
+                    case PIECE_BISHOP:
+                        {
+                            for (int i = 0; i < logic.advisorDelta.Length; i++)
+                            {
+                                sqDst = sqSrc + logic.advisorDelta[i];
+                                //象眼位置
+                                if (!(logic.InBoard(sqDst) && logic.HomeHalf(sqDst, sdPlayer) && currentBoard[sqDst] == 0))
+                                {
+                                    continue;
+                                }
+                                //象的步长是士的2倍
+                                sqDst += logic.advisorDelta[i];
+                                pcDst = currentBoard[sqDst];
+                                if ((pcDst & pcSelfSide) == 0)
+                                {
+                                    tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                    ++genMoves;
+                                }
+                            }
+                        }
+                        break;
+                    case PIECE_KNIGHT:
+                        {
+                            for (int i = 0; i < logic.kingDelta.Length; i++)
+                            {
+                                sqDst = sqSrc + logic.kingDelta[i];
+                                //马腿位置
+                                if (currentBoard[sqDst] != 0)
+                                {
+                                    continue;
+                                }
+
+                                for(int j = 0; j < 2; j++)
+                                {
+                                    sqDst = sqSrc + logic.knightDelta[i, j];
+                                    pcDst = currentBoard[sqDst];
+                                    if ((pcDst & pcSelfSide) == 0)
+                                    {
+                                        tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                        ++genMoves;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case PIECE_ROOK:
+                        {
+                            int delta = 0;
+                            for(int i = 0; i < logic.kingDelta.Length; i++)
+                            {
+                                delta = logic.kingDelta[i];
+                                sqDst = sqSrc + delta;
+                                while(logic.InBoard(sqDst))
+                                {
+                                    pcDst = currentBoard[sqDst];
+                                    if(pcDst == 0)
+                                    {
+                                        tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                        ++genMoves;
+                                    }else if((pcDst & pcOppSide) != 0) //对方棋子位置
+                                    {
+                                        tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                        ++genMoves;
+                                        break;
+                                    }
+                                    sqDst += delta;
+                                }
+                            }
+                        }break;
+                    case PIECE_CANNON:
+                        {
+                            int delta = 0;
+                            for (int i = 0; i < logic.kingDelta.Length; i++)
+                            {
+                                delta = logic.kingDelta[i];
+                                sqDst = sqSrc + delta;
+                                while(logic.InBoard(sqDst))
+                                {
+                                    pcDst = currentBoard[sqDst];
+                                    if (pcDst == 0)
+                                    {
+                                        tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                        ++genMoves;
+                                    }
+                                    else
+                                    { 
+                                        break;
+                                    }
+                                    sqDst += delta;
+                                }
+
+                                sqDst += delta;
+                                while(logic.InBoard(sqDst))
+                                {
+                                    pcDst = currentBoard[sqDst];
+                                    if(pcDst != 0 && (pcDst & pcOppSide) != 0)
+                                    {
+                                        tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                        ++genMoves;
+                                        break;
+                                    }
+                                    sqDst += delta;
+                                }
+                            }
+                        }
+                        break;
+                    case PIECE_PAWN:
+                        {
+                            sqDst = logic.SquareForward(sqSrc, sdPlayer);
+                            if(logic.InBoard(sqDst))
+                            {
+                                pcDst = currentBoard[sqDst];
+                                if ((pcDst & pcSelfSide) == 0)
+                                {
+                                    tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                    ++genMoves;
+                                }
+                            }
+                            if(logic.AwayHalf(sqSrc, sdPlayer))
+                            {
+                                for(int delta = -1; delta <= 1; delta += 2)
+                                {
+                                    sqDst = sqSrc + delta;
+                                    if(logic.InBoard(sqDst))
+                                    {
+                                        pcDst = currentBoard[sqDst];
+                                        if ((pcDst & pcSelfSide) == 0)
+                                        {
+                                            tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                            ++genMoves;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+            mvs = tempMvs;
+            return genMoves;
+        }
+
+        /// <summary>
+        /// 撤销走一步棋
+        /// </summary>
+        /// <param name="mv"></param>
+        /// <param name="pcCaptured"></param>
+        void UndoMovePiece(int mv, int pcCaptured)
+        {
+            int sqSrc, sqDst;
+            sqSrc = logic.Src(mv);
+            sqDst = logic.Dst(mv);
+            sbyte pc = currentBoard[sqDst];
+            DeletePiece(sqDst);
+            AddPiece(sqSrc, pc);
+            AddPiece(sqDst, pcCaptured);
+        }
+
+        /// <summary>
+        /// 判断走法是否合理
+        /// </summary>
+        /// <param name="mv"></param>
+        /// <returns></returns>
+        public bool LegalMove(int mv)
+        {
+            int sqSrc = logic.Src(mv);
+            int pcSrc = currentBoard[sqSrc];
+            int pcSelfSide = logic.SideTag(sdPlayer);
+            //判断起始的格子是否是自己的棋子
+            if((pcSrc & pcSelfSide) == 0)
+            {
+                return false;
+            }
+
+            int sqDst = logic.Dst(mv);
+            int pcDst = currentBoard[sqDst];
+            //目标的格子是否自己的棋子
+            if((pcDst & pcSelfSide) != 0)
+            {
+                return false;
+            }
+
+            int sqPin = 0;
+            int delta = 0;
+            //根据棋子类型判断走法是否合理
+            switch (pcSrc - pcSelfSide)
+            {
+                case PIECE_KING:
+                    {
+                        return logic.InFort(sqDst) && logic.KingSpan(sqSrc, sqDst);
+                    }
+                case PIECE_ADVISOR:
+                    {
+                        return logic.InFort(sqDst) && logic.AdvisorSpan(sqSrc, sqDst);
+                    }
+                case PIECE_BISHOP:
+                    {
+                        return logic.SameHalf(sqSrc, sqDst) && logic.BishopSpan(sqSrc, sqDst) && currentBoard[logic.BishopPin(sqSrc, sqDst)] == 0;
+                    }
+                case PIECE_KNIGHT:
+                    {
+                        sqPin = logic.KnightPin(sqSrc, sqDst);
+                        return sqPin != sqSrc && currentBoard[sqPin] == 0;
+                    }
+                case PIECE_ROOK:
+                case PIECE_CANNON:
+                    {
+                        if(logic.SameRow(sqSrc, sqDst))
+                        {
+                            delta = sqDst < sqSrc ? -1 : 1;
+                        }else if(logic.SameColumn(sqSrc, sqDst))
+                        {
+                            delta = sqDst < sqSrc ? -16 : 16;
+                        }else
+                        {
+                            return false;
+                        }
+
+                        sqPin = sqSrc + delta;
+                        while(sqPin != sqDst && currentBoard[sqPin] == 0)
+                        {
+                            sqPin += delta;
+                        }
+                        if(sqPin == sqDst)
+                        {
+                            return pcDst == 0 || pcSrc - pcSelfSide == PIECE_ROOK;
+                        }else if(pcDst != 0 && pcSrc - pcSelfSide == PIECE_CANNON)
+                        {
+                            sqPin += delta;
+                            while(sqPin != sqDst && currentBoard[sqPin] == 0)
+                            {
+                                sqPin += delta;
+                            }
+                            return sqPin == sqDst;
+                        }
+
+                        return false;
+                    }
+                case PIECE_PAWN:
+                    {
+                        if(logic.AwayHalf(sqSrc, sdPlayer) && (sqDst == sqSrc - 1 || sqDst == sqSrc + 1))
+                        {
+                            return true;
+                        }
+                        return sqDst == logic.SquareForward(sqSrc, sdPlayer);
+                    }
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// 判断是否被将军
+        /// </summary>
+        /// <returns></returns>
+        public bool Checked()
+        {
+            int pcDst = 0;
+            int pcSelfSide = logic.SideTag(sdPlayer);
+            int pcOppSide = logic.oppSideTag(sdPlayer);
+            int delta = 0;
+            for(int sqSrc = 0; sqSrc < currentBoard.Length; sqSrc++)
+            {
+                if(currentBoard[sqSrc] != pcSelfSide + PIECE_KING)
+                {
+                    continue;
+                }
+                //被对面的兵将军
+                if(currentBoard[logic.SquareForward(sqSrc, sdPlayer)] == pcOppSide + PIECE_PAWN)
+                {
+                    return true;
+                }
+
+                for(delta = -1; delta <= 1; delta += 2)
+                {
+                    if (currentBoard[sqSrc + delta] == pcOppSide + PIECE_PAWN)
+                    {
+                        return true;
+                    }
+                }
+
+                //被对面的马将军(以士的步长作为马腿)
+                for (int i = 0; i < logic.advisorDelta.Length; i++)
+                {
+                    if (currentBoard[sqSrc + logic.advisorDelta[i]] != 0)
+                    {
+                        continue;
+                    }
+                    for(int j = 0; i < 2; j++)
+                    {
+                        pcDst = currentBoard[sqSrc + logic.knightCheckDelta[i, j]];
+                        if(pcDst == pcOppSide + PIECE_KNIGHT)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                //被对面车或炮将军(包括将帅对脸)
+                for(int i = 0; i < logic.kingDelta.Length; i++)
+                {
+                    delta = logic.kingDelta[i];
+
+                }
+            }
+            return false;
         }
     }
 

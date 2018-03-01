@@ -109,12 +109,7 @@ public class ChessBoard : MonoBehaviour
             }
         }
 
-        if(selectX != -1 && selectY != -1)
-        {
-            return new Vector2(selectX, selectY);
-        }
-
-        return Vector2.zero;
+        return new Vector2(selectX, selectY);
     }
 
     /// <summary>
@@ -124,7 +119,7 @@ public class ChessBoard : MonoBehaviour
     void SelectPiece(Vector2 point)
     {
         Vector2 pos = GetPostionByHit(point);
-        if (pos != Vector2.zero)
+        if (pos != new Vector2(-1, -1))
         {
             int x = (int)pos.x + ChessLogic.COLUMN_LEFT;
             int y = (int)pos.y + ChessLogic.ROW_TOP;
