@@ -503,12 +503,24 @@ public class ChessLogic
         /// 走一步棋
         /// </summary>
         /// <param name="mv"></param>
-        public void MakeMove(int mv)
+        /// <returns></returns>
+        public bool MakeMove(int mv)
         {
-            MovePiece(mv);
+            int pc = MovePiece(mv);
+            if(Checked())
+            {
+                UndoMovePiece(mv, pc);
+                return false;
+            }
             ChangeSide();
+            return true;
         }
 
+        /// <summary>
+        /// 生成所有走法
+        /// </summary>
+        /// <param name="mvs"></param>
+        /// <returns></returns>
         int GenerateMoves(out int[] mvs)
         {
             int genMoves = 0;
@@ -857,7 +869,7 @@ public class ChessLogic
                     {
                         continue;
                     }
-                    for(int j = 0; i < 2; j++)
+                    for(int j = 0; j < 2; j++)
                     {
                         pcDst = currentBoard[sqSrc + logic.knightCheckDelta[i, j]];
                         if(pcDst == pcOppSide + PIECE_KNIGHT)
@@ -904,6 +916,31 @@ public class ChessLogic
                 return false;
             }
             return false;
+        }
+
+        /// <summary>
+        /// 判断是否被杀
+        /// </summary>
+        /// <returns></returns>
+        public bool IsMate()
+        {
+            int[] mvs = new int[MAX_GENERATE_MOVES];
+            int genMoveNum = GenerateMoves(out mvs);
+            int pcCaptured = 0;
+            for(int i = 0; i < genMoveNum; i++)
+            {
+                pcCaptured = MovePiece(mvs[i]);
+                if(!Checked())
+                {
+                    UndoMovePiece(mvs[i], pcCaptured);
+                    return false;
+                }else
+                {
+                    UndoMovePiece(mvs[i], pcCaptured);
+                }
+            }
+
+            return true;
         }
     }
 
@@ -963,11 +1000,30 @@ public class ChessLogic
             drawSelectHandle(true, x, y);
         }else if(sqSelected != 0)
         {
-            mvLast = Move(sqSelected, sq);
-            situation.MakeMove(mvLast);
-            drawSelectHandle(false);
-            movePieceHandle(new Vector2(ColumnX(sqSelected), RowY(sqSelected)), new Vector2(x, y));
-            sqSelected = 0;
+            int mv = Move(sqSelected, sq);
+            if(situation.LegalMove(mv))
+            {
+                if(situation.MakeMove(mv))
+                {
+                    mvLast = mv;
+                    drawSelectHandle(false);
+                    movePieceHandle(new Vector2(ColumnX(sqSelected), RowY(sqSelected)), new Vector2(x, y));
+                    sqSelected = 0;
+
+                    if(situation.IsMate())
+                    {
+                        //分出胜负
+                        Debug.Log("you win");
+                    }else
+                    {
+                        //将军或者吃子
+                    }
+                }else
+                {
+                    //被将军
+                }
+            }
+            
         }
     }
 }
