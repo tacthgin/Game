@@ -203,6 +203,7 @@ GameObject:
   - component: {fileID: 931905005}
   - component: {fileID: 931905004}
   - component: {fileID: 931905007}
+  - component: {fileID: 931905008}
   m_Layer: 0
   m_Name: BOARD
   m_TagString: Untagged
@@ -221,23 +222,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 951e8ddd09006ba458a41e54e6a0b13e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pieceGameObject:
-  - {fileID: 1074238293763482, guid: 4449de4dc0ddfd14e9401fd3f1782972, type: 2}
-  - {fileID: 1939232611175228, guid: 9d48d57ba729d1f4ab27a53a4c331c58, type: 2}
-  - {fileID: 1217495301064480, guid: 016bbc6f367a5f34a81950d3a49b80eb, type: 2}
-  - {fileID: 1884069331682260, guid: 4f1fca1b846a03645acfbb38a0f1fa70, type: 2}
-  - {fileID: 1968578191004882, guid: b3a2cbd2d2592b14dba627655cd5b1c8, type: 2}
-  - {fileID: 1669790469846538, guid: c0c8cae11b62bb145bb2e5c4d016b1ad, type: 2}
-  - {fileID: 1944223120246940, guid: 48f17284d08a3704bac2cfbdb7dfde38, type: 2}
-  - {fileID: 1237290436759830, guid: 69701d9337b9b704ba10e80051cd5095, type: 2}
-  - {fileID: 1253288263766560, guid: 0b7354bc65d85474c8cdbe136e05be22, type: 2}
-  - {fileID: 1162170271105792, guid: c042f1e5e802ab44cabc99a8f484fa85, type: 2}
-  - {fileID: 1150496957365052, guid: c838e86cdcd1263418cb617b1a9fe078, type: 2}
-  - {fileID: 1203070773506754, guid: ef3457fbb5fc86b4db5669853be275ea, type: 2}
-  - {fileID: 1408917992898046, guid: 0182d1f8d7b79e6459ba08e3e5aa378e, type: 2}
-  - {fileID: 1265542809379812, guid: 8ab4d08201cfea24983b03e8f1efa8a2, type: 2}
-  selectGameObject: {fileID: 1639428470233124, guid: d074e367159914a4aa2f703c4222d1e7,
-    type: 2}
 --- !u!212 &931905005
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -320,3 +304,31 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 5.7777777, y: 6.4}
   m_EdgeRadius: 0
+--- !u!114 &931905008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 931905003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d9c106cc99e4ac4ebda654239c74534, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pieceGameObject:
+  - {fileID: 1077983606913100, guid: c1bd313023e4228499605e3e840135dc, type: 2}
+  - {fileID: 1934023521170090, guid: 49a9e28c88eb38c438e1b2586cb3e1cd, type: 2}
+  - {fileID: 1838704404111330, guid: 97cad66a397cb184780c95cc8d30ac78, type: 2}
+  - {fileID: 1684823921531280, guid: 6e2da2443b64e8147919b71a9ea94c76, type: 2}
+  - {fileID: 1703259611122316, guid: 87b167d2f0cc7524a88de7f69c05a55f, type: 2}
+  - {fileID: 1700723318784234, guid: 5dc3d75a80c450546966e5f7e8f4c190, type: 2}
+  - {fileID: 1847056051152834, guid: 96762871dd86053478f839bbe3605db4, type: 2}
+  - {fileID: 1278077878494450, guid: ca080a31ca0ee4d43aaa73ebe0da870b, type: 2}
+  - {fileID: 1851767975164280, guid: 66c44876998048540b0027912d065d88, type: 2}
+  - {fileID: 1017882319189732, guid: 84616f89ab73d3e4296d8afbd5c027ac, type: 2}
+  - {fileID: 1281242817825996, guid: a5dafa3eeb28cc04891a0c9a3ea0f5f2, type: 2}
+  - {fileID: 1041300305108358, guid: 2ac393b2742e3604498b258ef467c7dd, type: 2}
+  - {fileID: 1616007297992076, guid: 7e7a3e58b06653c42a3e90ba9c0c9ea8, type: 2}
+  - {fileID: 1278520554430748, guid: d5edb2d993a65544dac47974cc94998e, type: 2}
+  selectGameObject: {fileID: 1403673052280384, guid: 974158de0dd8e464080692aac6f9d84e,
+    type: 2}
