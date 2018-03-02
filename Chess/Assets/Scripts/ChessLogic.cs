@@ -69,7 +69,7 @@ public class ChessLogic
     };
 
     /// <summary>
-    /// 判断步长是否符合特定走法，1=帅，2=士，3=相
+    /// 判断步长是否符合特定走法，1=帅，2=士，3=象
     /// </summary>
     private readonly sbyte[] legalSpan = {
                              0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -998,7 +998,9 @@ public class ChessLogic
         {
             sqSelected = sq;
             drawSelectHandle(true, x, y);
-        }else if(sqSelected != 0)
+            SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_CLICK);
+        }
+        else if(sqSelected != 0)
         {
             int mv = Move(sqSelected, sq);
             if(situation.LegalMove(mv))
@@ -1017,13 +1019,19 @@ public class ChessLogic
                     }else
                     {
                         //将军或者吃子
+                        int soundId = situation.Checked() ? SoundManager.AUDIO_ENEMY_CHECK : (pc != 0 ? SoundManager.AUDIO_CAPTURE : SoundManager.AUDIO_MOVE);
+                        SoundManager.MyInstance.PlayEffect(soundId);
                     }
                 }else
                 {
                     //被将军
+                    SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_CHECK);
                 }
+            }else
+            {
+                //不合法的棋
+                SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_ILLEGAL);
             }
-            
         }
     }
 }
