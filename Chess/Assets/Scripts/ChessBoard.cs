@@ -17,6 +17,9 @@ public class ChessBoard : MonoBehaviour
 
     private ChessLogic chessLogic = new ChessLogic();
 
+    private float totalTime = 0;
+    private const float COMPUTER_TIME = 0.5f;
+
     void Start ()
     {
         chessLogic.Init();
@@ -31,6 +34,16 @@ public class ChessBoard : MonoBehaviour
         {
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
             SelectPiece(hit.point);
+        }
+
+        if(chessLogic.Computer)
+        {
+            totalTime += Time.deltaTime;
+            if(totalTime >= COMPUTER_TIME)
+            {
+                chessLogic.ResponseMove();
+                totalTime = 0;
+            }
         }
 	}
 

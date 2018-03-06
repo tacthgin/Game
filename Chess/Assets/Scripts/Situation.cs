@@ -1,4 +1,5 @@
-﻿/// <summary>
+﻿using UnityEngine;
+/// <summary>
 /// 局面结构
 /// </summary>
 public class Situation
@@ -41,15 +42,34 @@ public class Situation
         get { return sdPlayer; }
     }
 
+    public int Distance
+    {
+        set { distance = value; }
+        get { return distance; }
+    }
+
     /// <summary>
     /// 初始化棋盘
     /// </summary>
     /// <param name="startBoard">初始棋盘设置</param>
     public void Init(ChessLogic chessLogic, sbyte[] startBoard)
     {
-        sdPlayer = 0;
-        startBoard.CopyTo(currentBoard, 0);
         logic = chessLogic;
+
+        sdPlayer = 0;
+        redValue = 0;
+        blackValue = 0;
+        distance = 0;
+
+        int pc = 0;
+        for(int sq = 0; sq < 256; sq++)
+        {
+            pc = startBoard[sq];
+            if(pc != 0)
+            {
+                AddPiece(sq, pc);
+            }
+        }
     }
 
     /// <summary>
@@ -75,7 +95,7 @@ public class Situation
         }
         else
         {
-            blackValue -= logic.piecePosValue[pc - 16, logic.SquareFilp(sq)];
+            blackValue += logic.piecePosValue[pc - 16, logic.SquareFilp(sq)];
         }
     }
 
@@ -93,7 +113,7 @@ public class Situation
         }
         else
         {
-            blackValue += logic.piecePosValue[pc - 16, logic.SquareFilp(sq)];
+            blackValue -= logic.piecePosValue[pc - 16, logic.SquareFilp(sq)];
         }
     }
 
@@ -101,7 +121,7 @@ public class Situation
     /// 局面评价函数
     /// </summary>
     /// <returns></returns>
-    int Evaluate()
+    public int Evaluate()
     {
         return (sdPlayer == 0 ? redValue - blackValue : blackValue - redValue) + ChessLogic.ADVANCED_VALUE;
     }
@@ -132,16 +152,29 @@ public class Situation
     /// </summary>
     /// <param name="mv"></param>
     /// <returns></returns>
-    public bool MakeMove(int mv)
+    public bool MakeMove(int mv, out int pcCaptured)
     {
-        int pc = MovePiece(mv);
+        pcCaptured = MovePiece(mv);
         if (Checked())
         {
-            UndoMovePiece(mv, pc);
+            UndoMovePiece(mv, pcCaptured);
             return false;
         }
         ChangeSide();
+        ++distance;
         return true;
+    }
+
+    /// <summary>
+    /// 撤销走一步棋
+    /// </summary>
+    /// <param name="mv"></param>
+    /// <param name="pcCaptured"></param>
+    public void UndoMakeMove(int mv, int pcCaptured)
+    {
+        --distance;
+        ChangeSide();
+        UndoMovePiece(mv, pcCaptured);
     }
 
     /// <summary>
@@ -149,7 +182,7 @@ public class Situation
     /// </summary>
     /// <param name="mvs"></param>
     /// <returns></returns>
-    int GenerateMoves(out int[] mvs)
+    public int GenerateMoves(out int[] mvs)
     {
         int genMoves = 0;
         int pcSelfSide = logic.SideTag(sdPlayer);
@@ -243,6 +276,10 @@ public class Situation
                             for (int j = 0; j < 2; j++)
                             {
                                 sqDst = sqSrc + logic.knightDelta[i, j];
+                                if(!logic.InBoard(sqDst))
+                                {
+                                    continue;
+                                }
                                 pcDst = currentBoard[sqDst];
                                 if ((pcDst & pcSelfSide) == 0)
                                 {
@@ -268,10 +305,13 @@ public class Situation
                                     tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
                                     ++genMoves;
                                 }
-                                else if ((pcDst & pcOppSide) != 0) //对方棋子位置
+                                else 
                                 {
-                                    tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
-                                    ++genMoves;
+                                    if ((pcDst & pcOppSide) != 0) //对方棋子位置
+                                    { 
+                                        tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                        ++genMoves;
+                                    }
                                     break;
                                 }
                                 sqDst += delta;
@@ -357,7 +397,7 @@ public class Situation
     /// </summary>
     /// <param name="mv"></param>
     /// <param name="pcCaptured"></param>
-    void UndoMovePiece(int mv, int pcCaptured)
+    public void UndoMovePiece(int mv, int pcCaptured)
     {
         int sqSrc, sqDst;
         sqSrc = logic.Src(mv);

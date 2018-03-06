@@ -28,21 +28,6 @@ public class ChessLogic
     public const int MAX_GENERATE_MOVES = 128;
 
     /// <summary>
-    /// 最大搜索深度
-    /// </summary>
-    public const int LIMIT_DEPTH = 32;
-
-    /// <summary>
-    /// 最高分支，即将死的分支
-    /// </summary>
-    public const int MATE_VALUE = 10000;
-
-    /// <summary>
-    /// 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
-    /// </summary>
-    public const int WIN_VALUE = MATE_VALUE - 100;
-
-    /// <summary>
     /// 先行权分值
     /// </summary>
     public const int ADVANCED_VALUE = 3;
@@ -589,6 +574,12 @@ public class ChessLogic
         set { }
         get { return situation; }
     }
+
+    /// <summary>
+    /// 搜索实例
+    /// </summary>
+    private Search search;
+
     /// <summary>
     /// 选中的棋子编号
     /// </summary>
@@ -599,6 +590,16 @@ public class ChessLogic
     /// </summary>
     private int mvLast = 0;
 
+    /// <summary>
+    /// 电脑下棋了
+    /// </summary>
+    private bool computer = false;
+
+    public bool Computer
+    {
+        set { }
+        get { return computer; }
+    }
     /// <summary>
     /// 画选中的图像
     /// </summary>
@@ -622,10 +623,15 @@ public class ChessLogic
     public void Init()
     {
         situation.Init(this, startupChessBoard);
+        search = new Search(situation);
     }
 
     public void ClickSquare(int x, int y)
     {
+        if(computer)
+        {
+            return;
+        }
         int sq = CoordXY(x, y);
         int pc = situation.CurrentBoard[sq];
 
@@ -641,7 +647,7 @@ public class ChessLogic
             int mv = Move(sqSelected, sq);
             if(situation.LegalMove(mv))
             {
-                if(situation.MakeMove(mv))
+                if(situation.MakeMove(mv, out pc))
                 {
                     mvLast = mv;
                     drawSelectHandle(false);
@@ -657,6 +663,8 @@ public class ChessLogic
                         //将军或者吃子
                         int soundId = situation.Checked() ? SoundManager.AUDIO_ENEMY_CHECK : (pc != 0 ? SoundManager.AUDIO_CAPTURE : SoundManager.AUDIO_MOVE);
                         SoundManager.MyInstance.PlayEffect(soundId);
+                        //电脑走棋
+                        computer = true;
                     }
                 }else
                 {
@@ -668,6 +676,34 @@ public class ChessLogic
                 //不合法的棋
                 SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_ILLEGAL);
             }
+        }
+    }
+
+    /// <summary>
+    /// 电脑回应一步棋
+    /// </summary>
+    public void ResponseMove()
+    {
+        computer = false;
+        //电脑走一步棋
+        search.SearchMain();
+        int pcCaptured = 0;
+        situation.MakeMove(search.MvResult, out pcCaptured);
+        mvLast = search.MvResult;
+        //画电脑的棋
+        int sqSrc = Src(mvLast);
+        int sqDst = Dst(mvLast);
+        movePieceHandle(new Vector2(ColumnX(sqSrc), RowY(sqSrc)), new Vector2(ColumnX(sqDst), RowY(sqDst)));
+
+        if(situation.IsMate())
+        {
+            //你死了
+            SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_LOSS);
+        }else
+        {
+            //被将军或者吃子
+            int soundId = situation.Checked() ? SoundManager.AUDIO_ENEMY_CHECK : (pcCaptured != 0 ? SoundManager.AUDIO_CAPTURE : SoundManager.AUDIO_MOVE);
+            SoundManager.MyInstance.PlayEffect(soundId);
         }
     }
 }
