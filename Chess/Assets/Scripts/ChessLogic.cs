@@ -643,7 +643,7 @@ public class ChessLogic
     public void Init()
     {
         situation.Init(this, startupChessBoard);
-        search = new Search(situation);
+        search = new Search(this, situation);
     }
 
     public void ClickSquare(int x, int y)
@@ -667,7 +667,7 @@ public class ChessLogic
             int mv = Move(sqSelected, sq);
             if(situation.LegalMove(mv))
             {
-                if(situation.MakeMove(mv, out pc))
+                if(situation.MakeMove(mv))
                 {
                     mvLast = mv;
                     drawSelectHandle(false);
@@ -708,7 +708,7 @@ public class ChessLogic
         //电脑走一步棋
         search.SearchMain();
         int pcCaptured = 0;
-        situation.MakeMove(search.MvResult, out pcCaptured);
+        situation.MakeMove(search.MvResult);
         mvLast = search.MvResult;
         //画电脑的棋
         int sqSrc = Src(mvLast);

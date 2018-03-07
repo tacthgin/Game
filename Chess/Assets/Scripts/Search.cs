@@ -16,6 +16,11 @@ public class Search
     public const int WIN_VALUE = ChessLogic.MATE_VALUE - 100;
 
     /// <summary>
+    /// 生成吃子走法
+    /// </summary>
+    public const bool GEN_CAPTURE = true;
+
+    /// <summary>
     /// 电脑走的棋
     /// </summary>
     private int mvResult;
@@ -26,9 +31,21 @@ public class Search
     private int[] historyTable = new int[65536];
 
     /// <summary>
+    /// MVV/LVA每种
+    /// </summary>
+    private byte[] ucMvvLva = new byte[24]
+    {
+        0, 0, 0, 0, 0, 0, 0, 0,
+        5, 1, 1, 3, 4, 3, 2, 0,
+        5, 1, 1, 3, 4, 3, 2, 0
+    };
+
+    /// <summary>
     /// 局面实例
     /// </summary>
     private Situation situation;
+
+    private ChessLogic chessLogic;
 
     public int MvResult
     {
@@ -50,9 +67,128 @@ public class Search
         }
     }
 
-    public Search(Situation s)
+    public Search(ChessLogic c, Situation s)
     {
         situation = s;
+        chessLogic = c;
+    }
+
+    /// <summary>
+    /// 求MVV/LVA值
+    /// </summary>
+    /// <param name="mv"></param>
+    /// <returns></returns>
+    public int MvvLva(int mv)
+    {
+        return ucMvvLva[situation.CurrentBoard[chessLogic.Dst(mv)] << 3] - ucMvvLva[situation.CurrentBoard[chessLogic.Src(mv)]];
+    }
+
+    /// <summary>
+    /// 按MVV/LVA值排序的比较函数
+    /// </summary>
+    /// <param name="mv1"></param>
+    /// <param name="mv2"></param>
+    /// <returns></returns>
+    public int CompareMvvLva(int mv1, int mv2)
+    {
+        return MvvLva(mv2) - MvvLva(mv1);
+    }
+
+    public class MvvLvaCompare : IComparer<int>
+    {
+        private Search search;
+        public MvvLvaCompare(Search s)
+        {
+            search = s;
+        }
+
+        public int Compare(int x, int y)
+        {
+            return search.CompareMvvLva(x, y);
+        }
+    }
+
+    /// <summary>
+    /// 静态(Quiescence)搜索过程
+    /// </summary>
+    /// <param name="alpha"></param>
+    /// <param name="beta"></param>
+    /// <returns></returns>
+    public int SearchQuiesc(int alpha, int beta)
+    {
+        //静态搜索分为以下几个阶段
+        //1.检查重复局面
+        int value = situation.RepStatus();
+        if(value != 0)
+        {
+            return situation.RepValue(value);
+        }
+
+        //2.到达极限深度就返回局面评价
+        if(situation.Distance == LIMIT_DEPTH)
+        {
+            return situation.Evaluate();
+        }
+
+        //3.初始化最佳值
+        int bestValue = -ChessLogic.MATE_VALUE; //这样可以知道，是否一个走法都没走过(杀棋)
+
+        int[] mvs = new int[ChessLogic.MAX_GENERATE_MOVES];
+        int genMoves = 0;
+        if (situation.InCheck())
+        {
+            //4.如果被将军，则生成全部走法
+            genMoves = situation.GenerateMoves(out mvs);
+            Array.Sort(mvs, 0, genMoves, new HistoryCompare(historyTable));
+        }else
+        {
+            //5.如果不被将军，先做局面评价
+            value = situation.Evaluate();
+            if(value > bestValue)
+            {
+                bestValue = value;
+                if(value >= beta)
+                {
+                    return value;
+                }
+
+                if(value > alpha)
+                {
+                    alpha = value;
+                }
+            }
+
+            //6.如果局面评价没有截断，再生成吃子走法
+            genMoves = situation.GenerateMoves(out mvs, GEN_CAPTURE);
+            Array.Sort(mvs, 0, genMoves, new MvvLvaCompare(this));
+        }
+
+        //7.逐一走这些走法，并进行递归
+        for(int i = 0; i < genMoves; i++)
+        {
+            if(situation.MakeMove(mvs[i]))
+            {
+                value = -SearchQuiesc(-beta, -alpha);
+                situation.UndoMakeMove();
+
+                //8.进行Alpha-Beta大小判断和截断
+                if(value > bestValue) //找到最佳值(但不能确定是Alpha、PV还是beta走法)
+                {
+                    bestValue = value; //bestValue是目前要返回的最佳值，可能超出Alpha-Beta边界
+                    if(value >= beta) //找到一个Beta走法
+                    {
+                        return value; //Beta截断
+                    }
+                    if(value > alpha) //找到一个PV走法
+                    {
+                        alpha = value; //缩小Alpha-Beta边界
+                    }
+                }
+            }
+        }
+
+        //9.所有走法都搜索完了，返回最佳值
+        return bestValue == -ChessLogic.MATE_VALUE ? situation.Distance - ChessLogic.MATE_VALUE : bestValue;
     }
 
     /// <summary>
@@ -84,10 +220,10 @@ public class Search
         int value = 0;
         for(int i = 0; i < genMoves; i++)
         {
-            if(situation.MakeMove(mvs[i], out pcCaptured))
+            if(situation.MakeMove(mvs[i]))
             {
                 value = -SearchFull(-beta, -alpha, depth - 1);
-                situation.UndoMakeMove(mvs[i], pcCaptured);
+                situation.UndoMakeMove();
 
                 //进行Alpha-Beta大小判断和截断
                 if(value > bestValue) //找到最佳值(但不确定是Alpha、PV还是Beta走法)

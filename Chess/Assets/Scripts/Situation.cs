@@ -206,10 +206,10 @@ public class Situation
     /// </summary>
     /// <param name="mv"></param>
     /// <returns></returns>
-    public bool MakeMove(int mv, out int pcCaptured)
+    public bool MakeMove(int mv)
     {
         uint key = zobr.Key;
-        pcCaptured = MovePiece(mv);
+        int pcCaptured = MovePiece(mv);
         if (Checked())
         {
             UndoMovePiece(mv, pcCaptured);
@@ -259,8 +259,9 @@ public class Situation
     /// 生成所有走法
     /// </summary>
     /// <param name="mvs"></param>
+    /// <param name="capture">true,只生成吃子走法</param>
     /// <returns></returns>
-    public int GenerateMoves(out int[] mvs)
+    public int GenerateMoves(out int[] mvs, bool capture = false)
     {
         int genMoves = 0;
         int pcSelfSide = logic.SideTag(sdPlayer);
@@ -293,7 +294,7 @@ public class Situation
                             }
                             pcDst = currentBoard[sqDst];
                             //走到不是有自己棋子的地方
-                            if ((pcDst & pcSelfSide) == 0)
+                            if (capture ? (pcDst & pcOppSide) != 0 : (pcDst & pcSelfSide) == 0)
                             {
                                 tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
                                 ++genMoves;
@@ -311,7 +312,7 @@ public class Situation
                                 continue;
                             }
                             pcDst = currentBoard[sqDst];
-                            if ((pcDst & pcSelfSide) == 0)
+                            if (capture ? (pcDst & pcOppSide) != 0 : (pcDst & pcSelfSide) == 0)
                             {
                                 tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
                                 ++genMoves;
@@ -332,7 +333,7 @@ public class Situation
                             //象的步长是士的2倍
                             sqDst += logic.advisorDelta[i];
                             pcDst = currentBoard[sqDst];
-                            if ((pcDst & pcSelfSide) == 0)
+                            if (capture ? (pcDst & pcOppSide) != 0 : (pcDst & pcSelfSide) == 0)
                             {
                                 tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
                                 ++genMoves;
@@ -359,7 +360,7 @@ public class Situation
                                     continue;
                                 }
                                 pcDst = currentBoard[sqDst];
-                                if ((pcDst & pcSelfSide) == 0)
+                                if (capture ? (pcDst & pcOppSide) != 0 : (pcDst & pcSelfSide) == 0)
                                 {
                                     tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
                                     ++genMoves;
@@ -380,8 +381,11 @@ public class Situation
                                 pcDst = currentBoard[sqDst];
                                 if (pcDst == 0)
                                 {
-                                    tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
-                                    ++genMoves;
+                                    if(!capture)
+                                    {
+                                        tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                        ++genMoves;
+                                    }
                                 }
                                 else 
                                 {
@@ -409,8 +413,11 @@ public class Situation
                                 pcDst = currentBoard[sqDst];
                                 if (pcDst == 0)
                                 {
-                                    tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
-                                    ++genMoves;
+                                    if(!capture)
+                                    {
+                                        tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                        ++genMoves;
+                                    }
                                 }
                                 else
                                 {
@@ -440,7 +447,7 @@ public class Situation
                         if (logic.InBoard(sqDst))
                         {
                             pcDst = currentBoard[sqDst];
-                            if ((pcDst & pcSelfSide) == 0)
+                            if (capture ? (pcDst & pcOppSide) != 0 : (pcDst & pcSelfSide) == 0)
                             {
                                 tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
                                 ++genMoves;
@@ -454,7 +461,7 @@ public class Situation
                                 if (logic.InBoard(sqDst))
                                 {
                                     pcDst = currentBoard[sqDst];
-                                    if ((pcDst & pcSelfSide) == 0)
+                                    if (capture ? (pcDst & pcOppSide) != 0 : (pcDst & pcSelfSide) == 0)
                                     {
                                         tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
                                         ++genMoves;
@@ -703,7 +710,7 @@ public class Situation
     /// </summary>
     /// <param name="recur"></param>
     /// <returns></returns>
-    int RepStatus(int recur = 1)
+    public int RepStatus(int recur = 1)
     {
         bool selfSide = false;
         //本方长将
