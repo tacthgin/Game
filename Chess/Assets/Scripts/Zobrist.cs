@@ -60,8 +60,8 @@ public class Zobrist
 /// </summary>
 static public class ZobristTable
 {
-    static private Zobrist player;
-    static private Zobrist[,] table = new Zobrist[14, 256];
+    static public Zobrist player;
+    static public Zobrist[,] table = new Zobrist[14, 256];
 
     static public void InitZobristTable()
     {

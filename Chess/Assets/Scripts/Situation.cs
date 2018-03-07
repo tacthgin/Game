@@ -5,6 +5,11 @@
 public class Situation
 {
     /// <summary>
+    /// 最大历史走法数
+    /// </summary>
+    public const int MAX_MOVES = 256;
+
+    /// <summary>
     /// 轮到谁走 0=红方，1=黑方
     /// </summary>
     private int sdPlayer = 0;
@@ -28,6 +33,21 @@ public class Situation
     /// </summary>
     private int distance = 0;
 
+    /// <summary>
+    /// 历史走法数
+    /// </summary>
+    private int moveNum = 0;
+
+    /// <summary>
+    /// 历史走法信息列表
+    /// </summary>
+    MoveInfo[] mvsList = new MoveInfo[MAX_MOVES];
+
+    /// <summary>
+    /// Zobrist
+    /// </summary>
+    Zobrist zobr = new Zobrist();
+
     private ChessLogic logic;
 
     public sbyte[] CurrentBoard
@@ -46,6 +66,15 @@ public class Situation
     {
         set { distance = value; }
         get { return distance; }
+    }
+
+    /// <summary>
+    /// 清空历史走法信息
+    /// </summary>
+    public void SetIrrev()
+    {
+        mvsList[0].Set(0, 0, Checked(), zobr.Key);
+        moveNum = 1;
     }
 
     /// <summary>
@@ -70,6 +99,8 @@ public class Situation
                 AddPiece(sq, pc);
             }
         }
+
+        SetIrrev();
     }
 
     /// <summary>
@@ -78,6 +109,7 @@ public class Situation
     public void ChangeSide()
     {
         sdPlayer = 1 - sdPlayer;
+        zobr.Xor(ref ZobristTable.player);
     }
 
     /// <summary>
@@ -92,10 +124,12 @@ public class Situation
         if (pc < 16)
         {
             redValue += logic.piecePosValue[pc - 8, sq];
+            zobr.Xor(ref ZobristTable.table[pc - 8, sq]);
         }
         else
         {
             blackValue += logic.piecePosValue[pc - 16, logic.SquareFilp(sq)];
+            zobr.Xor(ref ZobristTable.table[pc - 9, sq]);
         }
     }
 
@@ -110,10 +144,12 @@ public class Situation
         if (pc < 16)
         {
             redValue -= logic.piecePosValue[pc - 8, sq];
+            zobr.Xor(ref ZobristTable.table[pc - 8, sq]);
         }
         else
         {
             blackValue -= logic.piecePosValue[pc - 16, logic.SquareFilp(sq)];
+            zobr.Xor(ref ZobristTable.table[pc - 9, sq]);
         }
     }
 
@@ -124,6 +160,24 @@ public class Situation
     public int Evaluate()
     {
         return (sdPlayer == 0 ? redValue - blackValue : blackValue - redValue) + ChessLogic.ADVANCED_VALUE;
+    }
+
+    /// <summary>
+    /// 是否被将军
+    /// </summary>
+    /// <returns></returns>
+    public bool InCheck()
+    {
+        return mvsList[moveNum - 1].Check;
+    }
+
+    /// <summary>
+    /// 上一步是否吃子
+    /// </summary>
+    /// <returns></returns>
+    public bool Captured()
+    {
+        return mvsList[moveNum - 1].PcCaptured != 0;
     }
 
     /// <summary>
@@ -154,6 +208,7 @@ public class Situation
     /// <returns></returns>
     public bool MakeMove(int mv, out int pcCaptured)
     {
+        uint key = zobr.Key;
         pcCaptured = MovePiece(mv);
         if (Checked())
         {
@@ -161,6 +216,8 @@ public class Situation
             return false;
         }
         ChangeSide();
+        mvsList[moveNum].Set((ushort)mv, (byte)pcCaptured, Checked(), key);
+        ++moveNum;
         ++distance;
         return true;
     }
@@ -168,13 +225,34 @@ public class Situation
     /// <summary>
     /// 撤销走一步棋
     /// </summary>
-    /// <param name="mv"></param>
-    /// <param name="pcCaptured"></param>
-    public void UndoMakeMove(int mv, int pcCaptured)
+    public void UndoMakeMove()
     {
         --distance;
+        --moveNum;
         ChangeSide();
-        UndoMovePiece(mv, pcCaptured);
+        UndoMovePiece(mvsList[moveNum].Mv, mvsList[moveNum].PcCaptured);
+    }
+
+    /// <summary>
+    /// 走一步空步
+    /// </summary>
+    void NullMove()
+    {
+        uint key = zobr.Key;
+        ChangeSide();
+        mvsList[moveNum].Set(0, 0, false, key);
+        ++moveNum;
+        ++distance;
+    }
+
+    /// <summary>
+    /// 撤销空步
+    /// </summary>
+    void UndoNullMove()
+    {
+        --distance;
+        --moveNum;
+        ChangeSide();
     }
 
     /// <summary>
@@ -618,5 +696,63 @@ public class Situation
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// 检测重复局面
+    /// </summary>
+    /// <param name="recur"></param>
+    /// <returns></returns>
+    int RepStatus(int recur = 1)
+    {
+        bool selfSide = false;
+        //本方长将
+        bool perpCheck = true;
+        //对方长将
+        bool oppPerpCheck = true;
+        int currentMoveNum = moveNum - 1;
+        MoveInfo move = mvsList[currentMoveNum];
+        while(move.Mv != 0 && move.PcCaptured == 0)
+        {
+            if(selfSide)
+            {
+                perpCheck = perpCheck && move.Check;
+                if(move.Key == zobr.Key)
+                {
+                    recur--;
+                    if(recur == 0)
+                    {
+                        return 1 + (perpCheck ? 2 : 0) + (oppPerpCheck ? 4 : 0);
+                    }
+                }
+            }else
+            {
+                oppPerpCheck = oppPerpCheck && move.Check;
+            }
+            selfSide = !selfSide;
+            move = mvsList[--currentMoveNum];
+        }
+        return 0;
+    }
+
+    /// <summary>
+    /// 重复局面分值
+    /// </summary>
+    /// <param name="repStatus"></param>
+    /// <returns></returns>
+    public int RepValue(int repStatus)
+    {
+        int value = 0;
+        value = ((repStatus & 2) == 0 ? 0 : distance - ChessLogic.MATE_VALUE) + ((repStatus & 4) == 0 ? 0 : ChessLogic.MATE_VALUE - distance);
+        return value == 0 ? -ChessLogic.DRAW_VALUE : value;
+    }
+
+    /// <summary>
+    /// 判断是否允许空步裁剪
+    /// </summary>
+    /// <returns></returns>
+    public bool NullOkey()
+    {
+        return (sdPlayer == 0 ? redValue : blackValue) > ChessLogic.NULL_MARGIN;
     }
 }

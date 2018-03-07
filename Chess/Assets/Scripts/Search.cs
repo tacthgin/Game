@@ -6,11 +6,6 @@ using UnityEngine;
 public class Search
 {
     /// <summary>
-    /// 最高分支，即将死的分支
-    /// </summary>
-    public const int MATE_VALUE = 10000;
-
-    /// <summary>
     /// 最大搜索深度
     /// </summary>
     public const int LIMIT_DEPTH = 32;
@@ -18,7 +13,7 @@ public class Search
     /// <summary>
     /// 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
     /// </summary>
-    public const int WIN_VALUE = MATE_VALUE - 100;
+    public const int WIN_VALUE = ChessLogic.MATE_VALUE - 100;
 
     /// <summary>
     /// 电脑走的棋
@@ -76,7 +71,7 @@ public class Search
         }
 
         //初始化最佳值和最佳走法
-        int bestValue = -MATE_VALUE; //是否一个走法都没走过(杀棋)
+        int bestValue = -ChessLogic.MATE_VALUE; //是否一个走法都没走过(杀棋)
         int mvBest = 0; //是否搜索到了Beta走法或pv走法，以便保存到历史表
 
         //生成全部走法，并根据历史表排序
@@ -115,10 +110,10 @@ public class Search
         }
 
         //所有走法都搜索完了，把最佳走法(不能是Alpha走法)保存到历史表，返回最佳值
-        if(bestValue == -MATE_VALUE)
+        if(bestValue == -ChessLogic.MATE_VALUE)
         {
             //如果是杀棋，就根据最佳走法保存到历史表
-            return situation.Distance - MATE_VALUE;
+            return situation.Distance - ChessLogic.MATE_VALUE;
         }
         if (mvBest != 0)
         {
@@ -150,7 +145,7 @@ public class Search
         int value = 0;
         for(int i = 1; i <= LIMIT_DEPTH; i++)
         {
-            value = SearchFull(-MATE_VALUE, MATE_VALUE, i);
+            value = SearchFull(-ChessLogic.MATE_VALUE, ChessLogic.MATE_VALUE, i);
             //搜索到杀棋，就停止搜索
             if (value > WIN_VALUE || value < -WIN_VALUE)
             {

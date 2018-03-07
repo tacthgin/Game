@@ -28,9 +28,29 @@ public class ChessLogic
     public const int MAX_GENERATE_MOVES = 128;
 
     /// <summary>
+    /// 最高分支，即将死的分支
+    /// </summary>
+    public const int MATE_VALUE = 10000;
+
+    /// <summary>
+    /// 和棋时返回的分数(取负值)
+    /// </summary>
+    public const int DRAW_VALUE = 20;     
+
+    /// <summary>
     /// 先行权分值
     /// </summary>
     public const int ADVANCED_VALUE = 3;
+
+    /// <summary>
+    /// 空步裁剪的子力边界
+    /// </summary>
+    public const int NULL_MARGIN = 400;
+
+    /// <summary>
+    /// 空步裁剪的裁剪深度
+    /// </summary>
+    const int NULL_DEPTH = 2;
 
     /// <summary>
     /// 判断棋子是否在棋盘中
