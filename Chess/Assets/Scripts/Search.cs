@@ -197,14 +197,42 @@ public class Search
     /// <param name="alpha"></param>
     /// <param name="beta"></param>
     /// <param name="depth"></param>
+    /// <param name="noNull"></param>
     /// <returns></returns>
-    public int SearchFull(int alpha, int beta, int depth)
+    public int SearchFull(int alpha, int beta, int depth, bool noNull = false)
     {
-        //到达水平线，返回局面评价函数
-        if(depth == 0)
+        //一个Alpha-Beta完全搜索分为以下几个阶段
+        int value = 0;
+        if(situation.Distance > 0)
         {
-            return situation.Evaluate();
+            //1.到达水平线，则调用静态搜索(注意：由于空步裁剪，深度可能小于零)
+            if (depth <= 0)
+            {
+                return SearchQuiesc(alpha, beta);
+            }
+
+            //1-1.检查重复局面(注意：不要再根节点检查，否则就没有走法了)
+            value = situation.RepStatus();
+            if(value != 0)
+            {
+                return situation.RepValue(value);
+            }
+
+            //1-2.到达极限深度就返回局面评价
+            if(situation.Distance == LIMIT_DEPTH)
+            {
+                return situation.Evaluate();
+            }
+
+            //1-3.尝试空步裁剪(根节点的Beta值是"MATE_VALUE"，所以不可能发生空步裁剪)
+            if(!noNull && !situation.InCheck() && situation.NullOkey())
+            {
+                situation.NullMove();
+                value = -SearchFull(-beta, 1 - beta, depth - ChessLogic.NULL_DEPTH - 1, ChessLogic.NO_NULL);
+            }
+
         }
+        
 
         //初始化最佳值和最佳走法
         int bestValue = -ChessLogic.MATE_VALUE; //是否一个走法都没走过(杀棋)

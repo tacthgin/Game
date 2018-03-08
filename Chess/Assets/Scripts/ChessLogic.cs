@@ -50,7 +50,7 @@ public class ChessLogic
     /// <summary>
     /// 空步裁剪的裁剪深度
     /// </summary>
-    const int NULL_DEPTH = 2;
+    public const int NULL_DEPTH = 2;
 
     /// <summary>
     /// 判断棋子是否在棋盘中

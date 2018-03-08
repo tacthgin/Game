@@ -236,7 +236,7 @@ public class Situation
     /// <summary>
     /// 走一步空步
     /// </summary>
-    void NullMove()
+    public void NullMove()
     {
         uint key = zobr.Key;
         ChangeSide();
@@ -248,7 +248,7 @@ public class Situation
     /// <summary>
     /// 撤销空步
     /// </summary>
-    void UndoNullMove()
+    public void UndoNullMove()
     {
         --distance;
         --moveNum;
