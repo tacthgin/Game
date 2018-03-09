@@ -235,9 +235,7 @@ public class Search
                     return value;
                 }
             }
-
         }
-        
 
         //2.初始化最佳值和最佳走法
         int bestValue = -ChessLogic.MATE_VALUE; //是否一个走法都没走过(杀棋)
@@ -257,7 +255,7 @@ public class Search
                 value = -SearchFull(-beta, -alpha, situation.InCheck() ? depth : depth - 1);
                 situation.UndoMakeMove();
 
-                //进行Alpha-Beta大小判断和截断
+                //5.进行Alpha-Beta大小判断和截断
                 if(value > bestValue) //找到最佳值(但不确定是Alpha、PV还是Beta走法)
                 {
                     bestValue = value; //bestValue就是目前要返回的最佳值，可能超出Alpha-Beta边界
@@ -277,7 +275,7 @@ public class Search
             }
         }
 
-        //5.所有走法都搜索完了，把最佳走法(不能是Alpha走法)保存到历史表，返回最佳值
+        //6.所有走法都搜索完了，把最佳走法(不能是Alpha走法)保存到历史表，返回最佳值
         if(bestValue == -ChessLogic.MATE_VALUE)
         {
             //如果是杀棋，就根据最佳走法保存到历史表

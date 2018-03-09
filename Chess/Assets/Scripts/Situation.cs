@@ -439,10 +439,13 @@ public class Situation
                             while (logic.InBoard(sqDst))
                             {
                                 pcDst = currentBoard[sqDst];
-                                if (pcDst != 0 && (pcDst & pcOppSide) != 0)
+                                if (pcDst != 0 )
                                 {
-                                    tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
-                                    ++genMoves;
+                                    if ((pcDst & pcOppSide) != 0)
+                                    {
+                                        tempMvs[genMoves] = logic.Move(sqSrc, sqDst);
+                                        ++genMoves;
+                                    }
                                     break;
                                 }
                                 sqDst += delta;
