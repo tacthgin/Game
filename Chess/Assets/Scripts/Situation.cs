@@ -73,6 +73,10 @@ public class Situation
     /// </summary>
     public void SetIrrev()
     {
+        for(int i = 0; i < MAX_MOVES; i++)
+        {
+            mvsList[i] = new MoveInfo();
+        }
         mvsList[0].Set(0, 0, Checked(), zobr.Key);
         moveNum = 1;
     }
@@ -230,6 +234,11 @@ public class Situation
         --distance;
         --moveNum;
         ChangeSide();
+        if(mvsList[moveNum].Mv == 0)
+        {
+            Debug.Log(mvsList[moveNum].Mv);
+        }
+        
         UndoMovePiece(mvsList[moveNum].Mv, mvsList[moveNum].PcCaptured);
     }
 

@@ -642,6 +642,7 @@ public class ChessLogic
     /// </summary>
     public void Init()
     {
+        ZobristTable.InitZobristTable();
         situation.Init(this, startupChessBoard);
         search = new Search(this, situation);
     }

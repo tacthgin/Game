@@ -80,7 +80,7 @@ public class Search
     /// <returns></returns>
     public int MvvLva(int mv)
     {
-        return ucMvvLva[situation.CurrentBoard[chessLogic.Dst(mv)] << 3] - ucMvvLva[situation.CurrentBoard[chessLogic.Src(mv)]];
+        return (ucMvvLva[situation.CurrentBoard[chessLogic.Dst(mv)]] << 3) - ucMvvLva[situation.CurrentBoard[chessLogic.Src(mv)]];
     }
 
     /// <summary>
@@ -228,29 +228,33 @@ public class Search
             if(!noNull && !situation.InCheck() && situation.NullOkey())
             {
                 situation.NullMove();
-                value = -SearchFull(-beta, 1 - beta, depth - ChessLogic.NULL_DEPTH - 1, ChessLogic.NO_NULL);
+                value = -SearchFull(-beta, 1 - beta, depth - ChessLogic.NULL_DEPTH - 1, true);
+                situation.UndoNullMove();
+                if(value > beta)
+                {
+                    return value;
+                }
             }
 
         }
         
 
-        //初始化最佳值和最佳走法
+        //2.初始化最佳值和最佳走法
         int bestValue = -ChessLogic.MATE_VALUE; //是否一个走法都没走过(杀棋)
         int mvBest = 0; //是否搜索到了Beta走法或pv走法，以便保存到历史表
 
-        //生成全部走法，并根据历史表排序
+        //3.生成全部走法，并根据历史表排序
         int[] mvs = new int[ChessLogic.MAX_GENERATE_MOVES];
         int genMoves = situation.GenerateMoves(out mvs);
         Array.Sort(mvs, 0, genMoves, new HistoryCompare(historyTable));
 
-        //遍历走法
-        int pcCaptured = 0;
-        int value = 0;
+        //4.遍历走法
         for(int i = 0; i < genMoves; i++)
         {
             if(situation.MakeMove(mvs[i]))
             {
-                value = -SearchFull(-beta, -alpha, depth - 1);
+                //将军延伸
+                value = -SearchFull(-beta, -alpha, situation.InCheck() ? depth : depth - 1);
                 situation.UndoMakeMove();
 
                 //进行Alpha-Beta大小判断和截断
@@ -273,7 +277,7 @@ public class Search
             }
         }
 
-        //所有走法都搜索完了，把最佳走法(不能是Alpha走法)保存到历史表，返回最佳值
+        //5.所有走法都搜索完了，把最佳走法(不能是Alpha走法)保存到历史表，返回最佳值
         if(bestValue == -ChessLogic.MATE_VALUE)
         {
             //如果是杀棋，就根据最佳走法保存到历史表

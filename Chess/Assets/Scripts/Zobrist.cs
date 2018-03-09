@@ -60,7 +60,7 @@ public class Zobrist
 /// </summary>
 static public class ZobristTable
 {
-    static public Zobrist player;
+    static public Zobrist player = new Zobrist();
     static public Zobrist[,] table = new Zobrist[14, 256];
 
     static public void InitZobristTable()
@@ -71,7 +71,9 @@ static public class ZobristTable
         {
             for(int j = 0; j < 256; j++)
             {
-                ZobristTable.table[i, j].InitRC4(rc4);
+                Zobrist zobr = new Zobrist();
+                zobr.InitRC4(rc4);
+                ZobristTable.table[i, j] = zobr;
             }
         }
     }
