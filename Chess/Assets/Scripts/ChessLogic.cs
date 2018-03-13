@@ -33,6 +33,11 @@ public class ChessLogic
     public const int MATE_VALUE = 10000;
 
     /// <summary>
+    /// 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
+    /// </summary>
+    public const int WIN_VALUE = MATE_VALUE - 100;
+
+    /// <summary>
     /// 和棋时返回的分数(取负值)
     /// </summary>
     public const int DRAW_VALUE = 20;     
@@ -674,16 +679,49 @@ public class ChessLogic
                     drawSelectHandle(false);
                     movePieceHandle(new Vector2(ColumnX(sqSelected), RowY(sqSelected)), new Vector2(x, y));
                     sqSelected = 0;
-
-                    if(situation.IsMate())
+                    //检测重复局面
+                    int repValue = situation.RepStatus(3);
+                    if (situation.IsMate())
                     {
                         //分出胜负
                         Debug.Log("you win");
-                    }else
+                    }
+                    else if (repValue > 0)
+                    {
+                        //repValue是对电脑来说的分值
+                        repValue = situation.RepValue(repValue);
+                        int soundId = 0;
+                        string message = "";
+                        if(repValue > WIN_VALUE)
+                        {
+                            soundId = SoundManager.AUDIO_LOSS;
+                            message = "长打作负，请不要气馁！";
+                        }else if(repValue < -WIN_VALUE)
+                        {
+                            soundId = SoundManager.AUDIO_WIN;
+                            message = "电脑长打作负，祝贺你取得胜利！";
+                        }else
+                        {
+                            soundId = SoundManager.AUDIO_DRAW;
+                            message = "双方不变作和，辛苦了！";
+                        }
+                        SoundManager.MyInstance.PlayEffect(soundId);
+                        Debug.Log(message);
+                    }
+                    else if(situation.MoveNum > 100)
+                    {
+                        SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_DRAW);
+                        Debug.Log("超过自然限着作和，辛苦了！");
+                    }
+                    else
                     {
                         //将军或者吃子
                         int soundId = situation.Checked() ? SoundManager.AUDIO_ENEMY_CHECK : (pc != 0 ? SoundManager.AUDIO_CAPTURE : SoundManager.AUDIO_MOVE);
                         SoundManager.MyInstance.PlayEffect(soundId);
+                        if(situation.Captured())
+                        {
+                            situation.SetIrrev();
+                        }
                         //电脑走棋
                         computer = true;
                     }
@@ -715,12 +753,43 @@ public class ChessLogic
         int sqSrc = Src(mvLast);
         int sqDst = Dst(mvLast);
         movePieceHandle(new Vector2(ColumnX(sqSrc), RowY(sqSrc)), new Vector2(ColumnX(sqDst), RowY(sqDst)));
-
-        if(situation.IsMate())
+        //检测重复局面
+        int repValue = situation.RepStatus(3);
+        if (situation.IsMate())
         {
             //你死了
             SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_LOSS);
-        }else
+        }
+        else if (repValue > 0)
+        {
+            //repValue是对电脑来说的分值
+            repValue = situation.RepValue(repValue);
+            int soundId = 0;
+            string message = "";
+            if (repValue > WIN_VALUE)
+            {
+                soundId = SoundManager.AUDIO_LOSS;
+                message = "长打作负，请不要气馁！";
+            }
+            else if (repValue < -WIN_VALUE)
+            {
+                soundId = SoundManager.AUDIO_WIN;
+                message = "电脑长打作负，祝贺你取得胜利！";
+            }
+            else
+            {
+                soundId = SoundManager.AUDIO_DRAW;
+                message = "双方不变作和，辛苦了！";
+            }
+            SoundManager.MyInstance.PlayEffect(soundId);
+            Debug.Log(message);
+        }
+        else if (situation.MoveNum > 100)
+        {
+            SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_DRAW);
+            Debug.Log("超过自然限着作和，辛苦了！");
+        }
+        else
         {
             //被将军或者吃子
             int soundId = situation.Checked() ? SoundManager.AUDIO_ENEMY_CHECK : (pcCaptured != 0 ? SoundManager.AUDIO_CAPTURE : SoundManager.AUDIO_MOVE);

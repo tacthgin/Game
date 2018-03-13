@@ -11,11 +11,6 @@ public class Search
     public const int LIMIT_DEPTH = 32;
 
     /// <summary>
-    /// 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
-    /// </summary>
-    public const int WIN_VALUE = ChessLogic.MATE_VALUE - 100;
-
-    /// <summary>
     /// 生成吃子走法
     /// </summary>
     public const bool GEN_CAPTURE = true;
@@ -123,7 +118,7 @@ public class Search
         {
             return situation.RepValue(value);
         }
-
+        
         //2.到达极限深度就返回局面评价
         if(situation.Distance == LIMIT_DEPTH)
         {
@@ -313,7 +308,7 @@ public class Search
         {
             value = SearchFull(-ChessLogic.MATE_VALUE, ChessLogic.MATE_VALUE, i);
             //搜索到杀棋，就停止搜索
-            if (value > WIN_VALUE || value < -WIN_VALUE)
+            if (value > ChessLogic.WIN_VALUE || value < -ChessLogic.WIN_VALUE)
             {
                 break;
             }

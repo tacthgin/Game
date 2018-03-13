@@ -68,15 +68,17 @@ public class Situation
         get { return distance; }
     }
 
+    public int MoveNum
+    {
+        set { }
+        get { return moveNum; }
+    }
+
     /// <summary>
     /// 清空历史走法信息
     /// </summary>
     public void SetIrrev()
     {
-        for(int i = 0; i < MAX_MOVES; i++)
-        {
-            mvsList[i] = new MoveInfo();
-        }
         mvsList[0].Set(0, 0, Checked(), zobr.Key);
         moveNum = 1;
     }
@@ -102,6 +104,11 @@ public class Situation
             {
                 AddPiece(sq, pc);
             }
+        }
+
+        for (int i = 0; i < MAX_MOVES; i++)
+        {
+            mvsList[i] = new MoveInfo();
         }
 
         SetIrrev();
@@ -234,11 +241,6 @@ public class Situation
         --distance;
         --moveNum;
         ChangeSide();
-        if(mvsList[moveNum].Mv == 0)
-        {
-            Debug.Log(mvsList[moveNum].Mv);
-        }
-        
         UndoMovePiece(mvsList[moveNum].Mv, mvsList[moveNum].PcCaptured);
     }
 
