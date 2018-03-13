@@ -66,6 +66,7 @@ static public class ZobristTable
     static public void InitZobristTable()
     {
         RC4 rc4 = new RC4();
+        rc4.InitZero();
         ZobristTable.player.InitRC4(rc4);
         for(int i = 0; i < 14; i++)
         {
