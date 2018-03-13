@@ -14,6 +14,7 @@ public class SoundManager : MonoBehaviour
     public const int AUDIO_ENEMY_CHECK = 7;
     public const int AUDIO_MOVE = 8;
     public const int AUDIO_ENEMY_MOVE = 9;
+    public const int AUDIO_DRAW = 10;
 
     [SerializeField]
     private AudioSource effectSource;
