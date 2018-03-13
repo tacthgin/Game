@@ -49,11 +49,11 @@ public class RC4
     /// <returns></returns>
     public uint NextLong()
     {
-        byte uc0, uc1, uc2, uc3;
+        uint uc0, uc1, uc2, uc3;
         uc0 = NextByte();
         uc1 = NextByte();
         uc2 = NextByte();
         uc3 = NextByte();
-        return (uint)(uc0 + (uc1 << 8) + (uc2 << 16) + (uc3 << 24));
+        return (uc0 + (uc1 << 8) + (uc2 << 16) + (uc3 << 24));
     }
 }
