@@ -18,7 +18,7 @@ public class ChessBoard : MonoBehaviour
     private ChessLogic chessLogic = new ChessLogic();
 
     private float totalTime = 0;
-    private const float COMPUTER_TIME = 0.5f;
+    private const float COMPUTER_TIME = 0.1f;
 
     void Start ()
     {

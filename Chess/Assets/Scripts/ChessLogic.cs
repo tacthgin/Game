@@ -620,6 +620,11 @@ public class ChessLogic
     /// </summary>
     private bool computer = false;
 
+    /// <summary>
+    /// 游戏结束
+    /// </summary>
+    private bool gameOver = false;
+
     public bool Computer
     {
         set { }
@@ -654,7 +659,7 @@ public class ChessLogic
 
     public void ClickSquare(int x, int y)
     {
-        if(computer)
+        if(computer || gameOver)
         {
             return;
         }
@@ -676,7 +681,7 @@ public class ChessLogic
                 if(situation.MakeMove(mv))
                 {
                     mvLast = mv;
-                    drawSelectHandle(false);
+                    drawSelectHandle(true, x, y);
                     movePieceHandle(new Vector2(ColumnX(sqSelected), RowY(sqSelected)), new Vector2(x, y));
                     sqSelected = 0;
                     //检测重复局面
@@ -685,6 +690,7 @@ public class ChessLogic
                     {
                         //分出胜负
                         Debug.Log("you win");
+                        gameOver = true;
                     }
                     else if (repValue > 0)
                     {
@@ -707,11 +713,13 @@ public class ChessLogic
                         }
                         SoundManager.MyInstance.PlayEffect(soundId);
                         Debug.Log(message);
+                        gameOver = true;
                     }
                     else if(situation.MoveNum > 100)
                     {
                         SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_DRAW);
                         Debug.Log("超过自然限着作和，辛苦了！");
+                        gameOver = true;
                     }
                     else
                     {
@@ -752,13 +760,16 @@ public class ChessLogic
         //画电脑的棋
         int sqSrc = Src(mvLast);
         int sqDst = Dst(mvLast);
+        drawSelectHandle(true, ColumnX(sqDst), RowY(sqDst));
         movePieceHandle(new Vector2(ColumnX(sqSrc), RowY(sqSrc)), new Vector2(ColumnX(sqDst), RowY(sqDst)));
         //检测重复局面
         int repValue = situation.RepStatus(3);
         if (situation.IsMate())
         {
+            Debug.Log("player die");
             //你死了
             SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_LOSS);
+            gameOver = true;
         }
         else if (repValue > 0)
         {
@@ -783,11 +794,13 @@ public class ChessLogic
             }
             SoundManager.MyInstance.PlayEffect(soundId);
             Debug.Log(message);
+            gameOver = true;
         }
         else if (situation.MoveNum > 100)
         {
             SoundManager.MyInstance.PlayEffect(SoundManager.AUDIO_DRAW);
             Debug.Log("超过自然限着作和，辛苦了！");
+            gameOver = true;
         }
         else
         {

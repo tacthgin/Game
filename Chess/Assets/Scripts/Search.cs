@@ -314,7 +314,8 @@ public class Search
             }
 
             //搜索大于一秒就停止搜索
-            if((DateTime.UtcNow - srcTime).TotalMilliseconds > 1000)
+            TimeSpan span = DateTime.UtcNow - srcTime;
+            if (span.TotalMilliseconds > 500)
             {
                 break;
             }
