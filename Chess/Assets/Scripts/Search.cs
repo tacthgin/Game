@@ -55,6 +55,9 @@ public class Search
         5, 1, 1, 3, 4, 3, 2, 0
     };
 
+    /// <summary>
+    /// 杀手走法表
+    /// </summary>
     private int[,] mvKillers = new int[LIMIT_DEPTH, 2];
 
     /// <summary>
@@ -62,21 +65,21 @@ public class Search
     /// </summary>
     class HashItem
     {
-        private byte depth = 0;
-        private byte flag = 0;
+        private int depth = 0;
+        private int flag = 0;
         private int mvValue = 0;
         private int mv = 0;
         private int reserver = 0;
         private uint lock0 = 0;
         private uint lock1 = 0;
 
-        public byte Depth
+        public int Depth
         {
             set { depth = value; }
             get { return depth; }
         }
 
-        public byte Flag
+        public int Flag
         {
             set { flag = value; }
             get { return flag; }
@@ -90,19 +93,19 @@ public class Search
 
         public int Mv
         {
-            set { }
+            set { mv = value; }
             get { return mv; }
         }
 
         public uint Lock0
         {
-            set { }
+            set { lock0 = value; }
             get { return lock0; }
         }
 
         public uint Lock1
         {
-            set { }
+            set { lock1 = value; }
             get { return lock1; }
         }
     };
@@ -123,6 +126,17 @@ public class Search
     {
         set { }
         get { return mvResult; }
+    }
+
+    public int[,] MvKillers
+    {
+        set { }
+        get { return mvKillers; }
+    }
+
+    public int GetSituationDistance()
+    {
+        return situation.Distance;
     }
 
     public class HistoryCompare : IComparer<int>
@@ -223,6 +237,40 @@ public class Search
         }
 
         return -ChessLogic.MATE_VALUE;
+    }
+
+    /// <summary>
+    /// 保存置换表项
+    /// </summary>
+    /// <param name="flag"></param>
+    /// <param name="value"></param>
+    /// <param name="depth"></param>
+    /// <param name="mv"></param>
+    public void RecordHash(int flag, int value, int depth, int mv)
+    {
+        HashItem hsh = hashTable[situation.Zobr.Key & (HASH_SIZE - 1)];
+        if(hsh.Depth > depth)
+        {
+            return;
+        }
+
+        hsh.Flag = flag;
+        hsh.Depth = depth;
+        if(value > ChessLogic.WIN_VALUE)
+        {
+            hsh.MvValue = value + situation.Distance;
+        }else if(value < -ChessLogic.WIN_VALUE)
+        {
+            hsh.MvValue = value - situation.Distance;
+        }else
+        {
+            hsh.MvValue = value;
+        }
+
+        hsh.Mv = mv;
+        hsh.Lock0 = situation.Zobr.Lock0;
+        hsh.Lock1 = situation.Zobr.Lock1;
+        hashTable[situation.Zobr.Key & (HASH_SIZE - 1)] = hsh;
     }
 
     /// <summary>
