@@ -134,9 +134,10 @@ public class Search
         get { return mvKillers; }
     }
 
-    public int GetSituationDistance()
+    public Situation MySituation
     {
-        return situation.Distance;
+        set { }
+        get { return situation; }
     }
 
     public class HistoryCompare : IComparer<int>
@@ -151,6 +152,11 @@ public class Search
         {
             return historyTable[y] - historyTable[x];
         }
+    }
+
+    public HistoryCompare GetHistoryCompare()
+    {
+        return new HistoryCompare(historyTable);
     }
 
     public Search(ChessLogic c, Situation s)
