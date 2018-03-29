@@ -23,6 +23,15 @@ public class ChessLogic
     public const int PIECE_PAWN = 6;
 
     /// <summary>
+    /// 走法排序阶段
+    /// </summary>
+    public const int PHASE_HASH = 0;
+    public const int PHASE_KILLER_1 = 1;
+    public const int PHASE_KILLER_2 = 2;
+    public const int PHASE_GEN_MOVES = 3;
+    public const int PHASE_REST = 4;
+
+    /// <summary>
     /// 最大走法数
     /// </summary>
     public const int MAX_GENERATE_MOVES = 128;

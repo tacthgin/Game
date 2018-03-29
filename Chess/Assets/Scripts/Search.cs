@@ -11,6 +11,26 @@ public class Search
     public const int LIMIT_DEPTH = 32;
 
     /// <summary>
+    /// 置换表大小
+    /// </summary>
+    public const int HASH_SIZE = 1 << 20;
+
+    /// <summary>
+    /// ALPHA节点的置换表项
+    /// </summary>
+    public const int HASH_ALPHA = 1;
+
+    /// <summary>
+    /// BETA节点的置换表项
+    /// </summary>
+    public const int HASH_BETA = 2;
+
+    /// <summary>
+    /// PV节点的置换表项
+    /// </summary>
+    public const int HASH_PV = 3;
+
+    /// <summary>
     /// 生成吃子走法
     /// </summary>
     public const bool GEN_CAPTURE = true;
@@ -34,6 +54,63 @@ public class Search
         5, 1, 1, 3, 4, 3, 2, 0,
         5, 1, 1, 3, 4, 3, 2, 0
     };
+
+    private int[,] mvKillers = new int[LIMIT_DEPTH, 2];
+
+    /// <summary>
+    /// 置换表项结构
+    /// </summary>
+    class HashItem
+    {
+        private byte depth = 0;
+        private byte flag = 0;
+        private int mvValue = 0;
+        private int mv = 0;
+        private int reserver = 0;
+        private uint lock0 = 0;
+        private uint lock1 = 0;
+
+        public byte Depth
+        {
+            set { depth = value; }
+            get { return depth; }
+        }
+
+        public byte Flag
+        {
+            set { flag = value; }
+            get { return flag; }
+        }
+
+        public int MvValue
+        {
+            set { mvValue = value; }
+            get { return mvValue; }
+        }
+
+        public int Mv
+        {
+            set { }
+            get { return mv; }
+        }
+
+        public uint Lock0
+        {
+            set { }
+            get { return lock0; }
+        }
+
+        public uint Lock1
+        {
+            set { }
+            get { return lock1; }
+        }
+    };
+
+    /// <summary>
+    /// 置换表
+    /// </summary>
+    HashItem[] hashTable = new HashItem[HASH_SIZE];
 
     /// <summary>
     /// 局面实例
@@ -101,6 +178,51 @@ public class Search
         {
             return search.CompareMvvLva(x, y);
         }
+    }
+
+    /// <summary>
+    /// 提取置换表项
+    /// </summary>
+    /// <param name="alpha"></param>
+    /// <param name="beta"></param>
+    /// <param name="depth"></param>
+    /// <param name="mv"></param>
+    /// <returns></returns>
+    public int ProbeHash(int alpha, int beta, int depth, out int mv)
+    {
+        //杀棋标志：如果是杀棋，那么不需要满足深度条件
+        bool mate = false;
+        HashItem hsh = hashTable[situation.Zobr.Key & (HASH_SIZE - 1)];
+        if(hsh.Lock0 != situation.Zobr.Lock0 || hsh.Lock1 != situation.Zobr.Lock1)
+        {
+            mv = 0;
+            return -ChessLogic.MATE_VALUE;
+        }
+
+        mv = hsh.Mv;
+        if(hsh.MvValue > ChessLogic.WIN_VALUE)
+        {
+            hsh.MvValue -= situation.Distance;
+            mate = true;
+        }else if(hsh.MvValue < -ChessLogic.WIN_VALUE)
+        {
+            hsh.MvValue += situation.Distance;
+            mate = true;
+        }
+
+        if(hsh.Depth > depth || mate)
+        {
+            if(hsh.Flag == HASH_BETA)
+            {
+                return (hsh.MvValue >= beta ? hsh.MvValue : -ChessLogic.MATE_VALUE);
+            }else if(hsh.Flag == HASH_ALPHA)
+            {
+                return (hsh.MvValue <= alpha ? hsh.MvValue : -ChessLogic.MATE_VALUE);
+            }
+            return hsh.MvValue;
+        }
+
+        return -ChessLogic.MATE_VALUE;
     }
 
     /// <summary>

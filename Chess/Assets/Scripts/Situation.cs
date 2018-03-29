@@ -74,6 +74,12 @@ public class Situation
         get { return moveNum; }
     }
 
+    public Zobrist Zobr
+    {
+        set { }
+        get { return zobr; }
+    }
+
     /// <summary>
     /// 清空历史走法信息
     /// </summary>
