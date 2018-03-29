@@ -280,6 +280,21 @@ public class Search
     }
 
     /// <summary>
+    /// 对最佳走法的处理
+    /// </summary>
+    /// <param name="mv"></param>
+    /// <param name="depth"></param>
+    public void SetBestMove(int mv, int depth)
+    {
+        historyTable[mv] += depth * depth;
+        if(mvKillers[situation.Distance, 0] != mv)
+        {
+            mvKillers[situation.Distance, 1] = mvKillers[situation.Distance, 0];
+            mvKillers[situation.Distance, 0] = mv;
+        }
+    }
+
+    /// <summary>
     /// 静态(Quiescence)搜索过程
     /// </summary>
     /// <param name="alpha"></param>
@@ -374,6 +389,7 @@ public class Search
     {
         //一个Alpha-Beta完全搜索分为以下几个阶段
         int value = 0;
+        int mvHash = 0;
         if(situation.Distance > 0)
         {
             //1.到达水平线，则调用静态搜索(注意：由于空步裁剪，深度可能小于零)
@@ -395,7 +411,14 @@ public class Search
                 return situation.Evaluate();
             }
 
-            //1-3.尝试空步裁剪(根节点的Beta值是"MATE_VALUE"，所以不可能发生空步裁剪)
+            //1-3.尝试置换表裁剪，并得到置换表走法
+            value = ProbeHash(alpha, beta, depth, out mvHash);
+            if(value > -ChessLogic.MATE_VALUE)
+            {
+                return value;
+            }
+
+            //1-5.尝试空步裁剪(根节点的Beta值是"MATE_VALUE"，所以不可能发生空步裁剪)
             if(!noNull && !situation.InCheck() && situation.NullOkey())
             {
                 situation.NullMove();
@@ -406,40 +429,44 @@ public class Search
                     return value;
                 }
             }
+        }else
+        {
+            mvHash = 0;
         }
 
         //2.初始化最佳值和最佳走法
         int bestValue = -ChessLogic.MATE_VALUE; //是否一个走法都没走过(杀棋)
         int mvBest = 0; //是否搜索到了Beta走法或pv走法，以便保存到历史表
+        int hashFlag = HASH_ALPHA;
 
-        //3.生成全部走法，并根据历史表排序
-        int[] mvs = new int[ChessLogic.MAX_GENERATE_MOVES];
-        int genMoves = situation.GenerateMoves(out mvs);
-        Array.Sort(mvs, 0, genMoves, new HistoryCompare(historyTable));
+        //3.初始化走法排序结构
+        SortInfo sort = new SortInfo();
+        sort.Init(mvHash, this);
 
         //4.遍历走法
-        for(int i = 0; i < genMoves; i++)
+        int mv = 0;
+        while((mv = sort.Next()) != 0)
         {
-            if(situation.MakeMove(mvs[i]))
+            if (situation.MakeMove(mv))
             {
                 //将军延伸
                 value = -SearchFull(-beta, -alpha, situation.InCheck() ? depth : depth - 1);
                 situation.UndoMakeMove();
 
                 //5.进行Alpha-Beta大小判断和截断
-                if(value > bestValue) //找到最佳值(但不确定是Alpha、PV还是Beta走法)
+                if (value > bestValue) //找到最佳值(但不确定是Alpha、PV还是Beta走法)
                 {
                     bestValue = value; //bestValue就是目前要返回的最佳值，可能超出Alpha-Beta边界
 
                     if (value >= beta) //找到一个Beta走法
                     {
-                        mvBest = mvs[i];
+                        mvBest = mv;
                         break;
                     }
 
-                    if(value > alpha) //找到一个PV走法
+                    if (value > alpha) //找到一个PV走法
                     {
-                        mvBest = mvs[i]; //PV走法要保存到历史表
+                        mvBest = mv; //PV走法要保存到历史表
                         alpha = value;
                     }
                 }
