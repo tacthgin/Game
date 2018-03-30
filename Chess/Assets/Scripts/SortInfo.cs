@@ -42,6 +42,7 @@ public class SortInfo
 
     public void Init(int hash, Search s)
     {
+        search = s;
         mvHash = hash;
         mvKiller1 = s.MvKillers[s.MySituation.Distance, 0];
         mvKiller2 = s.MvKillers[s.MySituation.Distance, 1];

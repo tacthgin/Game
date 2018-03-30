@@ -201,6 +201,19 @@ public class Search
     }
 
     /// <summary>
+    /// 初始化置换表
+    /// </summary>
+    private void InitHashTable()
+    {
+        //清空置换表
+        Array.Clear(hashTable, 0, HASH_SIZE);
+        for (int i = 0; i < HASH_SIZE; i++)
+        {
+            hashTable[i] = new HashItem();
+        }
+    }
+
+    /// <summary>
     /// 提取置换表项
     /// </summary>
     /// <param name="alpha"></param>
@@ -479,10 +492,14 @@ public class Search
             //如果是杀棋，就根据最佳走法保存到历史表
             return situation.Distance - ChessLogic.MATE_VALUE;
         }
+
+        //记录到置换表
+        RecordHash(hashFlag, bestValue, depth, mvBest);
+
         if (mvBest != 0)
         {
             //如果不是Alpha走法，就将最佳走法保存到历史表中
-            historyTable[mvBest] += depth * depth;
+            SetBestMove(mvBest, depth);
             if (situation.Distance == 0)
             {
                 //搜索根节点时，总是有一个最佳走法(因为全窗口搜索不会超出边界)，将这个走法保存下来
@@ -498,8 +515,13 @@ public class Search
     /// </summary>
     public void SearchMain()
     {
-        //初始化历史表
+        //清空历史表
         Array.Clear(historyTable, 0, 65536);
+        //清空杀手走法表
+        Array.Clear(mvKillers, 0, LIMIT_DEPTH);
+        //初始化置换表
+        InitHashTable();
+
         //初始化定时器
         DateTime srcTime = DateTime.UtcNow;
         //初始化步数
