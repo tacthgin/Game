@@ -42,6 +42,11 @@ public class ChessLogic
     public const int MATE_VALUE = 10000;
 
     /// <summary>
+    /// 长将判负的分值，低于该值将不写入置换表
+    /// </summary>
+    public const int BAN_VALUE = MATE_VALUE - 100;
+
+    /// <summary>
     /// 搜索出胜负的分值界限，超出此值就说明已经搜索出杀棋了
     /// </summary>
     public const int WIN_VALUE = MATE_VALUE - 100;
@@ -65,6 +70,11 @@ public class ChessLogic
     /// 空步裁剪的裁剪深度
     /// </summary>
     public const int NULL_DEPTH = 2;
+
+    /// <summary>
+    /// 开局库大小
+    /// </summary>
+    public const int BOOK_SIZE = 16384;
 
     /// <summary>
     /// 判断棋子是否在棋盘中
@@ -191,7 +201,7 @@ public class ChessLogic
     /// <summary>
     /// 初始棋盘
     /// </summary>
-    private readonly sbyte[] startupChessBoard= {
+    public readonly sbyte[] startupChessBoard= {
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -424,6 +434,36 @@ public class ChessLogic
     }
 
     /// <summary>
+    /// 横坐标垂直镜像
+    /// </summary>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public int ColumnFilp(int x)
+    {
+        return 14 - x;
+    }
+
+    /// <summary>
+    /// 纵坐标水平镜像
+    /// </summary>
+    /// <param name="y"></param>
+    /// <returns></returns>
+    public int RowFilp(int y)
+    {
+        return 15 - y;
+    }
+
+    /// <summary>
+    /// 格子水平镜像
+    /// </summary>
+    /// <param name="sq"></param>
+    /// <returns></returns>
+    public int MirrorSqure(int sq)
+    {
+        return CoordXY(ColumnFilp(ColumnX(sq)), RowY(sq));
+    }
+
+    /// <summary>
     /// 棋子向前走一步
     /// </summary>
     /// <param name="sq"></param>
@@ -592,6 +632,16 @@ public class ChessLogic
     public int Move(int sqSrc, int sqDst)
     {
         return sqSrc + sqDst * 256;
+    }
+
+    /// <summary>
+    /// 走法水平镜像
+    /// </summary>
+    /// <param name="mv"></param>
+    /// <returns></returns>
+    public int MirrorMove(int mv)
+    {
+        return Move(MirrorSqure(Src(mv)), MirrorSqure(Dst(mv)));
     }
 
     public bool Red(int pc)

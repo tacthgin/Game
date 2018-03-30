@@ -25,6 +25,13 @@ public class Zobrist
         get { return lock1; }
     }
 
+    public void InitZero()
+    {
+        key = 0;
+        lock0 = 0;
+        lock1 = 0;
+    }
+
     /// <summary>
     /// 用密码流填充Zobrist
     /// </summary>

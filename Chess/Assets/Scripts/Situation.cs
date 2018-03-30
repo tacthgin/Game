@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 /// <summary>
 /// 局面结构
 /// </summary>
@@ -90,23 +91,39 @@ public class Situation
     }
 
     /// <summary>
-    /// 初始化棋盘
+    /// 初始化局面
     /// </summary>
-    /// <param name="startBoard">初始棋盘设置</param>
-    public void Init(ChessLogic chessLogic, sbyte[] startBoard)
+    /// <param name="chessLogic"></param>
+    public void Init(ChessLogic chessLogic)
     {
         logic = chessLogic;
+        Startup();
+    }
 
+    /// <summary>
+    /// 清空棋盘
+    /// </summary>
+    public void ClearBoard()
+    {
         sdPlayer = 0;
-        redValue = 0;
         blackValue = 0;
+        redValue = 0;
         distance = 0;
+        Array.Clear(currentBoard, 0, 256);
+        zobr.InitZero();
+    }
 
+    /// <summary>
+    /// 初始化棋盘
+    /// </summary>
+    public void Startup()
+    {
+        ClearBoard();
         int pc = 0;
-        for(int sq = 0; sq < 256; sq++)
+        for (int sq = 0; sq < 256; sq++)
         {
-            pc = startBoard[sq];
-            if(pc != 0)
+            pc = logic.startupChessBoard[sq];
+            if (pc != 0)
             {
                 AddPiece(sq, pc);
             }
@@ -726,6 +743,15 @@ public class Situation
     }
 
     /// <summary>
+    /// 和棋分值
+    /// </summary>
+    /// <returns></returns>
+    public int DrawValue()
+    {
+        return (distance & 1) == 0 ? -ChessLogic.DRAW_VALUE : ChessLogic.DRAW_VALUE;
+    }
+
+    /// <summary>
     /// 检测重复局面
     /// </summary>
     /// <param name="recur"></param>
@@ -781,5 +807,26 @@ public class Situation
     public bool NullOkey()
     {
         return (sdPlayer == 0 ? redValue : blackValue) > ChessLogic.NULL_MARGIN;
+    }
+
+    public void Mirror(ref Situation mirrorSituation)
+    {
+        mirrorSituation.ClearBoard();
+
+        int pc = 0;
+        for(int sq = 0; sq < 256; sq++)
+        {
+            pc = currentBoard[sq];
+            if(pc != 0)
+            {
+                mirrorSituation.AddPiece(logic.MirrorSqure(sq), pc);
+            }
+        }
+
+        if(sdPlayer == 1)
+        {
+            mirrorSituation.ChangeSide();
+        }
+        mirrorSituation.SetIrrev();
     }
 }
