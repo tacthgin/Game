@@ -712,7 +712,7 @@ public class ChessLogic
     public void Init()
     {
         ZobristTable.InitZobristTable();
-        situation.Init(this, startupChessBoard);
+        situation.Init(this);
         search = new Search(this, situation);
     }
 

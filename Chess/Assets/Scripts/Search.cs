@@ -16,6 +16,11 @@ public class Search
     public const int HASH_SIZE = 1 << 20;
 
     /// <summary>
+    /// 开局库大小
+    /// </summary>
+    public const int BOOK_SIZE = 16384;
+
+    /// <summary>
     /// ALPHA节点的置换表项
     /// </summary>
     public const int HASH_ALPHA = 1;
@@ -114,6 +119,18 @@ public class Search
     /// 置换表
     /// </summary>
     HashItem[] hashTable = new HashItem[HASH_SIZE];
+
+    class BookItem
+    {
+        public uint bookLock = 0;
+        public ushort mv = 0;
+        public ushort value = 0;
+    };
+
+    /// <summary>
+    /// 开局库
+    /// </summary>
+    private BookItem[] bookTable = new BookItem[BOOK_SIZE];
 
     /// <summary>
     /// 局面实例
