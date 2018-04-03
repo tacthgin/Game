@@ -714,6 +714,7 @@ public class ChessLogic
         ZobristTable.InitZobristTable();
         situation.Init(this);
         search = new Search(this, situation);
+        search.LoadBook();
     }
 
     public void ClickSquare(int x, int y)

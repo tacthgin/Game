@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class Search
@@ -120,7 +122,7 @@ public class Search
     /// </summary>
     HashItem[] hashTable = new HashItem[HASH_SIZE];
 
-    class BookItem
+    public class BookItem
     {
         public uint bookLock = 0;
         public ushort mv = 0;
@@ -131,6 +133,11 @@ public class Search
     /// 开局库
     /// </summary>
     private BookItem[] bookTable = new BookItem[BOOK_SIZE];
+
+    /// <summary>
+    /// 开局库的实际大小
+    /// </summary>
+    private int bookSize = 0;
 
     /// <summary>
     /// 局面实例
@@ -214,6 +221,57 @@ public class Search
         public int Compare(int x, int y)
         {
             return search.CompareMvvLva(x, y);
+        }
+    }
+
+    /// <summary>
+    /// 开局库比较
+    /// </summary>
+    /// <param name="l"></param>
+    /// <param name="r"></param>
+    /// <returns></returns>
+    public int CompareBook(BookItem l, BookItem r)
+    {
+        return l.bookLock > r.bookLock ? 1 : (l.bookLock < r.bookLock ? -1 : 0);
+    }
+
+    public class BookCompare : IComparer<BookItem>
+    {
+        private Search search;
+        public BookCompare(Search s)
+        {
+            search = s;
+        }
+
+        public int Compare(BookItem l, BookItem r)
+        {
+            return search.CompareBook(l, r);
+        }
+    }
+
+    /// <summary>
+    /// 加载开局库
+    /// </summary>
+    public void LoadBook()
+    {
+        String path = Application.dataPath + "/File/BOOK.DAT";
+        FileStream f = File.Open(path, FileMode.Open);
+        byte[] buffer = new byte[(int)f.Length];
+        f.Read(buffer, 0, buffer.Length);
+        f.Close();
+
+        bookSize = buffer.Length / 8;
+        int offset = 0;
+        for (int i = 0; i < bookSize; i++)
+        {
+            BookItem item = new BookItem();
+            item.bookLock = BitConverter.ToUInt32(buffer, offset);
+            offset += 4;
+            item.mv = BitConverter.ToUInt16(buffer, offset);
+            offset += 2;
+            item.value = BitConverter.ToUInt16(buffer, offset);
+            offset += 2;
+            bookTable[i] = item;
         }
     }
 
