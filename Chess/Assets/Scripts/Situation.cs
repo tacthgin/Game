@@ -86,6 +86,11 @@ public class Situation
     /// </summary>
     public void SetIrrev()
     {
+        Array.Clear(mvsList, 0, MAX_MOVES);
+        for (int i = 0; i < MAX_MOVES; i++)
+        {
+            mvsList[i] = new MoveInfo();
+        }
         mvsList[0].Set(0, 0, Checked(), zobr.Key);
         moveNum = 1;
     }
@@ -126,11 +131,6 @@ public class Situation
             {
                 AddPiece(sq, pc);
             }
-        }
-
-        for (int i = 0; i < MAX_MOVES; i++)
-        {
-            mvsList[i] = new MoveInfo();
         }
 
         SetIrrev();

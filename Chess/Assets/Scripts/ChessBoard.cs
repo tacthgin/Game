@@ -22,6 +22,7 @@ public class ChessBoard : MonoBehaviour
     void Start ()
     {
         chessLogic.Init();
+        chessLogic.MySituation.Startup();
         chessLogic.drawSelectHandle += ShowSelect;
         chessLogic.movePieceHandle += MovePiece;
         InitView();

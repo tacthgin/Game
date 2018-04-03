@@ -129,7 +129,7 @@ public class Search
     /// <summary>
     /// 开局库
     /// </summary>
-    private BookItem[] bookTable = new BookItem[BOOK_SIZE];
+    private BookItem[] bookTable;
 
     /// <summary>
     /// 开局库的实际大小
@@ -258,6 +258,7 @@ public class Search
         f.Close();
 
         bookSize = buffer.Length / 8;
+        bookTable = new BookItem[bookSize];
         int offset = 0;
         for (int i = 0; i < bookSize; i++)
         {
@@ -678,8 +679,34 @@ public class Search
         //初始化步数
         situation.Distance = 0;
 
-        //迭代加深过程
+        mvResult = SearchBook();
+        if(mvResult != 0)
+        {
+            situation.MakeMove(mvResult);
+            if(situation.RepStatus(3) == 0)
+            {
+                situation.UndoMakeMove();
+                return;
+            }
+            situation.UndoMakeMove();
+        }
+
+        //检查是否只有唯一走法
         int value = 0;
+        int[] mvs = new int[ChessLogic.MAX_GENERATE_MOVES];
+        int genMoves = situation.GenerateMoves(out mvs);
+        for(int i = 0; i < genMoves; i++)
+        {
+            if(situation.MakeMove(mvs[i]))
+            {
+                situation.UndoMakeMove();
+                mvResult = mvs[i];
+                value++;
+            }
+        }
+        if (value == 1) return;
+
+        //迭代加深过程
         for(int i = 1; i <= LIMIT_DEPTH; i++)
         {
             value = SearchFull(-ChessLogic.MATE_VALUE, ChessLogic.MATE_VALUE, i);
