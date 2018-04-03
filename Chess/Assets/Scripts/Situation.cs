@@ -97,7 +97,6 @@ public class Situation
     public void Init(ChessLogic chessLogic)
     {
         logic = chessLogic;
-        Startup();
     }
 
     /// <summary>

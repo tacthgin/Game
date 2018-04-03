@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class Search
@@ -76,7 +74,6 @@ public class Search
         private int flag = 0;
         private int mvValue = 0;
         private int mv = 0;
-        private int reserver = 0;
         private uint lock0 = 0;
         private uint lock1 = 0;
 
@@ -225,7 +222,7 @@ public class Search
     }
 
     /// <summary>
-    /// 开局库比较
+    /// 开局库比较函数
     /// </summary>
     /// <param name="l"></param>
     /// <param name="r"></param>
@@ -273,6 +270,85 @@ public class Search
             offset += 2;
             bookTable[i] = item;
         }
+    }
+
+    /// <summary>
+    /// 搜索开局库
+    /// </summary>
+    /// <returns></returns>
+    public int SearchBook()
+    {
+        //搜索开局库的过程有以下几个步骤
+        //1.没有开局库直接返回
+        if(bookSize == 0)
+        {
+            return 0;
+        }
+        //2.搜索当前局面
+        bool mirror = false;
+        BookItem itemToSearch = new BookItem();
+        itemToSearch.bookLock = situation.Zobr.Lock1;
+        int index = Array.BinarySearch(bookTable, itemToSearch, new BookCompare(this));
+        //3.如果没有找到，那么搜索当前局面的镜像局面
+        if(index < 0)
+        {
+            mirror = true;
+            Situation mirrorSituation = new Situation();
+            mirrorSituation.Init(chessLogic);
+            situation.Mirror(ref mirrorSituation);
+            itemToSearch.bookLock = mirrorSituation.Zobr.Lock1;
+            index = Array.BinarySearch(bookTable, itemToSearch, new BookCompare(this));
+        }
+        //4.如果镜像局面也没找到，就返回
+        if(index < 0)
+        {
+            return 0;
+        }
+        //5.如果找到，则向前查第一个开局库项
+        while(index >= 0 && itemToSearch.bookLock == bookTable[index].bookLock)
+        {
+            --index;
+        }
+        ++index;
+        //6.把走法和分值写入到"mvs"和"values"数组中
+        int value = 0;
+        int bookMoves = 0;
+        int[] mvs = new int[ChessLogic.MAX_GENERATE_MOVES];
+        int[] values = new int[ChessLogic.MAX_GENERATE_MOVES];
+        int mv = 0;
+        while(index < bookSize && itemToSearch.bookLock == bookTable[index].bookLock)
+        {
+            mv = (mirror ? chessLogic.MirrorMove(bookTable[index].mv) : bookTable[index].mv);
+            if(situation.LegalMove(mv))
+            {
+                mvs[bookMoves] = mv;
+                values[bookMoves] = bookTable[index].value;
+                value += values[bookMoves];
+                ++bookMoves;
+                if(bookMoves == ChessLogic.MAX_GENERATE_MOVES)
+                {
+                    break; //防止BOOK.DAT中含有异常数据
+                }
+            }
+            ++index;
+        }
+        if(value == 0)
+        {
+            return 0; //防止BOOK.DAT中含有异常数据
+        }
+        //7.根据权重随机选择一个走法
+        value = (new System.Random().Next()) % value;
+        int valueIndex = 0;
+        for(valueIndex = 0; valueIndex < bookMoves; valueIndex++)
+        {
+            value -= values[valueIndex];
+            if(value < 0)
+            {
+                break;
+            }
+        }
+
+        return mvs[valueIndex];
     }
 
     /// <summary>
