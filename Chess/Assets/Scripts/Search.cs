@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Search
@@ -251,23 +249,21 @@ public class Search
     /// </summary>
     public void LoadBook()
     {
-        String path = Application.dataPath + "/File/BOOK.DAT";
-        FileStream f = File.Open(path, FileMode.Open);
-        byte[] buffer = new byte[(int)f.Length];
-        f.Read(buffer, 0, buffer.Length);
-        f.Close();
+        TextAsset assets = Resources.Load<TextAsset>("BOOK");
+        byte[] buffer = assets.bytes;
 
         bookSize = buffer.Length / 8;
+        if (bookSize == 0) return;
         bookTable = new BookItem[bookSize];
         int offset = 0;
         for (int i = 0; i < bookSize; i++)
         {
             BookItem item = new BookItem();
-            item.bookLock = BitConverter.ToUInt32(buffer, offset);
+            item.bookLock = System.BitConverter.ToUInt32(buffer, offset);
             offset += 4;
-            item.mv = BitConverter.ToUInt16(buffer, offset);
+            item.mv = System.BitConverter.ToUInt16(buffer, offset);
             offset += 2;
-            item.value = BitConverter.ToUInt16(buffer, offset);
+            item.value = System.BitConverter.ToUInt16(buffer, offset);
             offset += 2;
             bookTable[i] = item;
         }
@@ -289,7 +285,7 @@ public class Search
         bool mirror = false;
         BookItem itemToSearch = new BookItem();
         itemToSearch.bookLock = situation.Zobr.Lock1;
-        int index = Array.BinarySearch(bookTable, itemToSearch, new BookCompare(this));
+        int index = System.Array.BinarySearch(bookTable, itemToSearch, new BookCompare(this));
         //3.如果没有找到，那么搜索当前局面的镜像局面
         if(index < 0)
         {
@@ -298,7 +294,7 @@ public class Search
             mirrorSituation.Init(chessLogic);
             situation.Mirror(ref mirrorSituation);
             itemToSearch.bookLock = mirrorSituation.Zobr.Lock1;
-            index = Array.BinarySearch(bookTable, itemToSearch, new BookCompare(this));
+            index = System.Array.BinarySearch(bookTable, itemToSearch, new BookCompare(this));
         }
         //4.如果镜像局面也没找到，就返回
         if(index < 0)
@@ -358,7 +354,7 @@ public class Search
     private void InitHashTable()
     {
         //清空置换表
-        Array.Clear(hashTable, 0, HASH_SIZE);
+        System.Array.Clear(hashTable, 0, HASH_SIZE);
         for (int i = 0; i < HASH_SIZE; i++)
         {
             hashTable[i] = new HashItem();
@@ -490,7 +486,7 @@ public class Search
         {
             //4.如果被将军，则生成全部走法
             genMoves = situation.GenerateMoves(out mvs);
-            Array.Sort(mvs, 0, genMoves, new HistoryCompare(historyTable));
+            System.Array.Sort(mvs, 0, genMoves, new HistoryCompare(historyTable));
         }else
         {
             //5.如果不被将军，先做局面评价
@@ -511,7 +507,7 @@ public class Search
 
             //6.如果局面评价没有截断，再生成吃子走法
             genMoves = situation.GenerateMoves(out mvs, GEN_CAPTURE);
-            Array.Sort(mvs, 0, genMoves, new MvvLvaCompare(this));
+            System.Array.Sort(mvs, 0, genMoves, new MvvLvaCompare(this));
         }
 
         //7.逐一走这些走法，并进行递归
@@ -668,14 +664,14 @@ public class Search
     public void SearchMain()
     {
         //清空历史表
-        Array.Clear(historyTable, 0, 65536);
+        System.Array.Clear(historyTable, 0, 65536);
         //清空杀手走法表
-        Array.Clear(mvKillers, 0, LIMIT_DEPTH);
+        System.Array.Clear(mvKillers, 0, LIMIT_DEPTH);
         //初始化置换表
         InitHashTable();
 
         //初始化定时器
-        DateTime srcTime = DateTime.UtcNow;
+        System.DateTime srcTime = System.DateTime.UtcNow;
         //初始化步数
         situation.Distance = 0;
 
@@ -717,7 +713,7 @@ public class Search
             }
 
             //搜索大于一秒就停止搜索
-            TimeSpan span = DateTime.UtcNow - srcTime;
+            System.TimeSpan span = System.DateTime.UtcNow - srcTime;
             if (span.TotalMilliseconds > 500)
             {
                 break;
