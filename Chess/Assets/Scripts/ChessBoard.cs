@@ -22,7 +22,6 @@ public class ChessBoard : MonoBehaviour
     void Start ()
     {
         chessLogic.Init();
-        chessLogic.MySituation.Startup();
         chessLogic.drawSelectHandle += ShowSelect;
         chessLogic.movePieceHandle += MovePiece;
         InitView();
@@ -30,13 +29,24 @@ public class ChessBoard : MonoBehaviour
 
 	void Update ()
     {
-        if (Input.GetMouseButtonUp(0))
+        if(SystemInfo.deviceType == DeviceType.Desktop)
         {
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-            SelectPiece(hit.point);
+            if (Input.GetMouseButtonUp(0))
+            {
+                RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+                SelectPiece(hit.point);
+            }
+        }
+        else
+        {
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
+            {
+                RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position), Vector2.zero);
+                SelectPiece(hit.point);
+            }
         }
 
-        if(chessLogic.Computer)
+        if (chessLogic.Computer)
         {
             totalTime += Time.deltaTime;
             if(totalTime >= COMPUTER_TIME)
@@ -55,7 +65,6 @@ public class ChessBoard : MonoBehaviour
             selectSprite.transform.parent = transform;
             selectSprite.SetActive(false);
         }
-        DrawBoard(chessLogic.MySituation.CurrentBoard);
     }
 
     /// <summary>
@@ -211,5 +220,11 @@ public class ChessBoard : MonoBehaviour
             Destroy(pieceDict[position]);
             pieceDict.Remove(position);
         }
+    }
+
+    public void OnStartupClick()
+    {
+        chessLogic.MySituation.Startup();
+        DrawBoard(chessLogic.MySituation.CurrentBoard);
     }
 }

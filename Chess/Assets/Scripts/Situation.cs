@@ -1,6 +1,4 @@
-﻿using System;
-using UnityEngine;
-/// <summary>
+﻿/// <summary>
 /// 局面结构
 /// </summary>
 public class Situation
@@ -86,7 +84,7 @@ public class Situation
     /// </summary>
     public void SetIrrev()
     {
-        Array.Clear(mvsList, 0, MAX_MOVES);
+        System.Array.Clear(mvsList, 0, MAX_MOVES);
         for (int i = 0; i < MAX_MOVES; i++)
         {
             mvsList[i] = new MoveInfo();
@@ -113,7 +111,7 @@ public class Situation
         blackValue = 0;
         redValue = 0;
         distance = 0;
-        Array.Clear(currentBoard, 0, 256);
+        System.Array.Clear(currentBoard, 0, 256);
         zobr.InitZero();
     }
 

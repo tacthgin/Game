@@ -1,5 +1,4 @@
-﻿using System;
-/// <summary>
+﻿/// <summary>
 /// 走法排序结构
 /// </summary>
 public class SortInfo
@@ -94,7 +93,7 @@ public class SortInfo
                 {
                     phase = ChessLogic.PHASE_REST;
                     genMoves = search.MySituation.GenerateMoves(out mvs);
-                    Array.Sort(mvs, 0, genMoves, search.GetHistoryCompare());
+                    System.Array.Sort(mvs, 0, genMoves, search.GetHistoryCompare());
                     index = 0;
                     goto case ChessLogic.PHASE_REST;
                 }
