@@ -253,7 +253,14 @@ public class Search
         byte[] buffer = assets.bytes;
 
         bookSize = buffer.Length / 8;
-        if (bookSize == 0) return;
+        if (bookSize == 0)
+        {
+            return;
+        }else if(bookSize > BOOK_SIZE)
+        {
+            bookSize = BOOK_SIZE;
+        }
+           
         bookTable = new BookItem[bookSize];
         int offset = 0;
         for (int i = 0; i < bookSize; i++)

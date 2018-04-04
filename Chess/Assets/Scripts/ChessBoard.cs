@@ -24,6 +24,7 @@ public class ChessBoard : MonoBehaviour
         chessLogic.Init();
         chessLogic.drawSelectHandle += ShowSelect;
         chessLogic.movePieceHandle += MovePiece;
+        chessLogic.drawBoardHandle += DrawCurrentBoard;
         InitView();
     }
 
@@ -222,9 +223,13 @@ public class ChessBoard : MonoBehaviour
         }
     }
 
+    void DrawCurrentBoard()
+    {
+        DrawBoard(chessLogic.MySituation.CurrentBoard);
+    }
+
     public void OnStartupClick()
     {
-        chessLogic.MySituation.Startup();
-        DrawBoard(chessLogic.MySituation.CurrentBoard);
+        chessLogic.Startup(false);
     }
 }

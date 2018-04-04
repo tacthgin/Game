@@ -12,6 +12,12 @@ public class Situation
     /// 轮到谁走 0=红方，1=黑方
     /// </summary>
     private int sdPlayer = 0;
+
+    /// <summary>
+    /// 是否翻转棋盘
+    /// </summary>
+    private bool fliped = false;
+
     /// <summary>
     /// 棋盘
     /// </summary>
@@ -59,6 +65,12 @@ public class Situation
     {
         set { }
         get { return sdPlayer; }
+    }
+
+    public bool Filped
+    {
+        set { }
+        get { return fliped; }
     }
 
     public int Distance
@@ -118,19 +130,22 @@ public class Situation
     /// <summary>
     /// 初始化棋盘
     /// </summary>
-    public void Startup()
+    /// <param name="red"></param>
+    public void Startup(bool red)
     {
         ClearBoard();
+        sdPlayer = red ? 0 : 1;
+        fliped = !red;
         int pc = 0;
         for (int sq = 0; sq < 256; sq++)
         {
             pc = logic.startupChessBoard[sq];
             if (pc != 0)
             {
-                AddPiece(sq, pc);
+                AddPiece(fliped ? logic.SquareFilp(sq) : sq, pc);
             }
         }
-
+ 
         SetIrrev();
     }
 

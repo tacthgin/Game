@@ -705,6 +705,9 @@ public class ChessLogic
     public delegate void MovePieceHandle(Vector2 srcPosition, Vector2 dstPosition);
     public MovePieceHandle movePieceHandle;
 
+    public delegate void DrawBoardHandle();
+    public DrawBoardHandle drawBoardHandle;
+
     /// <summary>
     /// 初始化局面实例
     /// </summary>
@@ -716,6 +719,13 @@ public class ChessLogic
         search.LoadBook();
     }
 
+    public void Startup(bool red)
+    {
+        computer = !red;
+        situation.Startup(red);
+        drawBoardHandle();
+    }
+
     public void ClickSquare(int x, int y)
     {
         if(computer || gameOver)
@@ -723,6 +733,7 @@ public class ChessLogic
             return;
         }
         int sq = CoordXY(x, y);
+        sq = situation.Filped ? SquareFilp(sq) : sq;
         int pc = situation.CurrentBoard[sq];
 
         //选中自己的棋子
@@ -805,6 +816,14 @@ public class ChessLogic
         }
     }
 
+    public void DrawPiece(int sqSrc, int sqDst)
+    {
+        sqSrc = situation.Filped ? SquareFilp(sqSrc) : sqSrc;
+        sqDst = situation.Filped ? SquareFilp(sqDst) : sqDst;
+        drawSelectHandle(true, ColumnX(sqDst), RowY(sqDst));
+        movePieceHandle(new Vector2(ColumnX(sqSrc), RowY(sqSrc)), new Vector2(ColumnX(sqDst), RowY(sqDst)));
+    }
+
     /// <summary>
     /// 电脑回应一步棋
     /// </summary>
@@ -819,8 +838,8 @@ public class ChessLogic
         //画电脑的棋
         int sqSrc = Src(mvLast);
         int sqDst = Dst(mvLast);
-        drawSelectHandle(true, ColumnX(sqDst), RowY(sqDst));
-        movePieceHandle(new Vector2(ColumnX(sqSrc), RowY(sqSrc)), new Vector2(ColumnX(sqDst), RowY(sqDst)));
+        DrawPiece(sqSrc, sqDst);
+
         //检测重复局面
         int repValue = situation.RepStatus(3);
         if (situation.IsMate())
