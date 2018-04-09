@@ -8,7 +8,7 @@ using namespace std;
 
 PokerLogic::PokerLogic()
 {
-	
+	createPlayer();
 }
 
 PokerLogic::~PokerLogic()
@@ -17,6 +17,7 @@ PokerLogic::~PokerLogic()
 
 void PokerLogic::createSendVector()
 {
+	_sendVec.clear();
 	for (int i = PokerType::Diamond; i <= PokerType::Spade; i++)
 	{
 		for (int j = PokerValue3; j <= PokerValue2; j++)
@@ -42,27 +43,37 @@ void PokerLogic::createLandlordVector()
 	sort(_landlordVec.begin(), _landlordVec.end(), less<Poker>());
 }
 
+void PokerLogic::createPlayer()
+{
+	for (int i = 0; i <= 2; i++)
+	{
+		_playerVec.push_back(Player(i));
+	}
+}
+
 void PokerLogic::createHandVector()
 {
+	vector<vector<Poker>> handVec;
 	for (int i = 0; i < 3; i++)
 	{
-		_handVec.push_back(vector<Poker>());
+		handVec.push_back(vector<Poker>());
 	}
 	int index = 0;
 	int contained = false;
 	for (auto iter = _sendVec.begin(); iter != _sendVec.end(); ++iter)
 	{
 		contained = false;
-		for(auto landlordIter = _landlordVec.begin(); landlordIter != _landlordVec.end(); ++landlordIter)
+		for(auto &m : _landlordVec)
 		{
-			if (*landlordIter == *iter)
+			if (m == *iter)
 			{
 				contained = true;
+				break;
 			}
 		}
 		if (contained) continue;
 
-		_handVec[index].push_back(*iter);
+		handVec[index].push_back(*iter);
 		++index;
 		if (index == 3)
 		{
@@ -70,9 +81,9 @@ void PokerLogic::createHandVector()
 		}
 	}
 
-	for (auto iter = _handVec.begin(); iter != _handVec.end(); ++iter)
+	for (int i = 0; i <= 2; i++)
 	{
-		sort(iter->begin(), iter->end(), greater<Poker>());
+		_playerVec[i].setHandVector(handVec[i]);
 	}
 }
 

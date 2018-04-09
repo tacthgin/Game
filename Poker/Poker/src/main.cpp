@@ -12,11 +12,12 @@ int main()
 	logic.createLandlordVector();
 	logic.printPokerVector("landlord", logic.getLandlordVector());
 	logic.createHandVector();
-	auto v = logic.getHandVector();
-	for (auto iter = v.begin(); iter != v.end(); ++iter)
+	vector<Player> players = logic.getPlayer();
+	for (auto &player : players)
 	{
-		logic.printPokerVector("hand", *iter);
+		logic.printPokerVector("hand", player.getHandVector());
 	}
+
 
 	char c;
 	cin >> c;

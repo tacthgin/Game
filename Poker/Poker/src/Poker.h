@@ -8,10 +8,14 @@ class Poker
 {
 public:
 	Poker(int type, int value);
+
+	Poker& operator=(const Poker& copy);
+	//±È½Ïº¯Êý
 	bool operator<(const Poker& compare) const;
 	bool operator>(const Poker& compare) const;
 	bool operator==(const Poker& compare) const;
 	bool operator!=(const Poker& compare) const;
+	
 	int getPokerType();
 	int getPokerValue();
 	std::string toString() const;

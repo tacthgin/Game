@@ -1,5 +1,6 @@
 #pragma once
 
+//花色
 enum PokerType
 {
 	PokerTypeNull = 0,
@@ -11,6 +12,7 @@ enum PokerType
 	RedJocker
 };
 
+//牌值
 enum PokerValue
 {
 	PokerValueNull = 0,
@@ -29,4 +31,24 @@ enum PokerValue
 	PokerValue2 = 15,
 	PokerValueBlackJoker = 16,
 	PokerValueRedJoker = 17
+};
+
+//牌的类型
+enum PokerCombineType
+{
+	Zero = 0, //没牌出
+	Single = 1, //单牌
+	Double = 2, //对子
+	Three = 3, //三张
+	ThreeOne = 4, //三带一
+	ThreeTwo = 5, //三带二
+	Bomb = 6, //炸弹
+	BombTwoSingle = 7, //炸弹带2单张
+	BombTwoDouble = 8, //炸弹带2双
+	SingleLine = 9, //顺子
+	DoubleLine = 10, //连对
+	ThreeLine = 11, //三顺
+	PlaneSingle = 12, //飞机带单张
+	PlaneDouble = 13, //飞机带对子
+	KingBomb = 14, //王炸
 };

@@ -2,8 +2,8 @@
 #define __POKER_LOGIC_H__
 
 #include <random>
-#include <vector>
 #include "Poker.h"
+#include "Player.h"
 
 class PokerLogic
 {
@@ -18,7 +18,9 @@ public:
 	const std::vector<Poker>& getLandlordVector() { return _landlordVec; }
 	//创建地主底牌数组
 	void createLandlordVector();
-	const std::vector<std::vector<Poker>>& getHandVector() { return _handVec; }
+	//创建三个玩家
+	void createPlayer();
+	std::vector<Player> getPlayer() { return _playerVec; }
 	//创建手牌数组
 	void createHandVector();
 	//获取区间随机数
@@ -28,12 +30,15 @@ public:
 	//打印牌组
 	void printPokerVector(std::string title, const std::vector<Poker>& pokerVector);
 private:
+	std::random_device _rd;
 	//发牌数组
 	std::vector<Poker> _sendVec;
+	//底牌
 	std::vector<Poker> _landlordVec;
-	std::random_device _rd;
-	std::vector<std::vector<Poker>> _handVec;
-	int _landlordIndex;
+	//玩家
+	std::vector<Player> _playerVec;
+	//谁是地主
+	int _landlordIndex = {-1};
 };
 
 #endif //__POKER_LOGIC_H__
