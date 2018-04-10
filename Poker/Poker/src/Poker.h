@@ -21,7 +21,7 @@ public:
 	std::string toString() const;
 private:
 	int _type = { PokerType::PokerTypeNull };
-	int _value = { PokerValue::PokerValueNull };
+	int _value = { PokerValue::Zero };
 };
 
 #endif //__POKER_H__

@@ -20,15 +20,15 @@ void PokerLogic::createSendVector()
 	_sendVec.clear();
 	for (int i = PokerType::Diamond; i <= PokerType::Spade; i++)
 	{
-		for (int j = PokerValue3; j <= PokerValue2; j++)
+		for (int j = PokerValue::Three; j <= PokerValue::Two; j++)
 		{
 			Poker poker(i, j);
 			_sendVec.push_back(poker);
 		}
 	}
 
-	_sendVec.push_back(Poker(PokerType::BlackJoker, PokerValue::PokerValueBlackJoker));
-	_sendVec.push_back(Poker(PokerType::RedJocker, PokerValue::PokerValueRedJoker));
+	_sendVec.push_back(Poker(PokerType::BJoker, PokerValue::BlackJoker));
+	_sendVec.push_back(Poker(PokerType::RJocker, PokerValue::RedJoker));
 	random_shuffle(_sendVec.begin(), _sendVec.end());
 }
 
