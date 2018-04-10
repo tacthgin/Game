@@ -134,7 +134,6 @@ public class Situation
     public void Startup(bool red)
     {
         ClearBoard();
-        sdPlayer = red ? 0 : 1;
         fliped = !red;
         int pc = 0;
         for (int sq = 0; sq < 256; sq++)
@@ -142,7 +141,7 @@ public class Situation
             pc = logic.startupChessBoard[sq];
             if (pc != 0)
             {
-                AddPiece(fliped ? logic.SquareFilp(sq) : sq, pc);
+                AddPiece(sq, pc);
             }
         }
  

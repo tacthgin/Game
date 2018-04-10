@@ -705,7 +705,7 @@ public class ChessLogic
     public delegate void MovePieceHandle(Vector2 srcPosition, Vector2 dstPosition);
     public MovePieceHandle movePieceHandle;
 
-    public delegate void DrawBoardHandle();
+    public delegate void DrawBoardHandle(bool flip);
     public DrawBoardHandle drawBoardHandle;
 
     /// <summary>
@@ -723,7 +723,7 @@ public class ChessLogic
     {
         computer = !red;
         situation.Startup(red);
-        drawBoardHandle();
+        drawBoardHandle(computer);
     }
 
     public void ClickSquare(int x, int y)
@@ -751,8 +751,7 @@ public class ChessLogic
                 if(situation.MakeMove(mv))
                 {
                     mvLast = mv;
-                    drawSelectHandle(true, x, y);
-                    movePieceHandle(new Vector2(ColumnX(sqSelected), RowY(sqSelected)), new Vector2(x, y));
+                    DrawPiece(sqSelected, sq);
                     sqSelected = 0;
                     //检测重复局面
                     int repValue = situation.RepStatus(3);
@@ -836,9 +835,7 @@ public class ChessLogic
         situation.MakeMove(search.MvResult);
         mvLast = search.MvResult;
         //画电脑的棋
-        int sqSrc = Src(mvLast);
-        int sqDst = Dst(mvLast);
-        DrawPiece(sqSrc, sqDst);
+        DrawPiece(Src(mvLast), Dst(mvLast));
 
         //检测重复局面
         int repValue = situation.RepStatus(3);

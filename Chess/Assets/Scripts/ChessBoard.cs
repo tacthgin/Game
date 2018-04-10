@@ -87,13 +87,16 @@ public class ChessBoard : MonoBehaviour
     /// 画整幅棋子
     /// </summary>
     /// <param name="board"></param>
-    void DrawBoard(sbyte[] board)
+    void DrawBoard(sbyte[] board, bool flip)
     {
+        int sq = 0;
         for(int i = ChessLogic.COLUMN_LEFT; i <= ChessLogic.COLUMN_RIGHT; ++i)
         {
             for(int j = ChessLogic.ROW_TOP; j <= ChessLogic.ROW_BOTTOM; ++j)
             {
-                int pc = board[chessLogic.CoordXY(i, j)];
+                sq = chessLogic.CoordXY(i, j);
+                sq = flip ? chessLogic.SquareFilp(sq) : sq;
+                int pc = board[sq];
                 if(pc != 0)
                 {
                     AddPiece(pc, new Vector2(i, j));
@@ -223,9 +226,9 @@ public class ChessBoard : MonoBehaviour
         }
     }
 
-    void DrawCurrentBoard()
+    void DrawCurrentBoard(bool flip)
     {
-        DrawBoard(chessLogic.MySituation.CurrentBoard);
+        DrawBoard(chessLogic.MySituation.CurrentBoard, flip);
     }
 
     public void OnStartupClick()
