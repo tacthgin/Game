@@ -5,11 +5,11 @@
 #include "Poker.h"
 #include "Player.h"
 
-class PokerLogic
+class Situation
 {
 public:
-	PokerLogic();
-	~PokerLogic();
+	Situation();
+	~Situation();
 	//获取发牌数组
 	const std::vector<Poker>& getSendVector() { return _sendVec; }
 	//创建发牌数组

@@ -6,7 +6,7 @@ using namespace std;
 
 int main()
 {
-	PokerLogic logic;
+	Situation logic;
 	logic.createSendVector();
 	logic.printPokerVector("send", logic.getSendVector());
 	logic.createLandlordVector();

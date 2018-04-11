@@ -1,4 +1,4 @@
-#include "PokerLogic.h"
+#include "Situation.h"
 #include <iostream>
 #include <functional>
 #include <algorithm>
@@ -6,16 +6,16 @@
 
 using namespace std;
 
-PokerLogic::PokerLogic()
+Situation::Situation()
 {
 	createPlayer();
 }
 
-PokerLogic::~PokerLogic()
+Situation::~Situation()
 {
 }
 
-void PokerLogic::createSendVector()
+void Situation::createSendVector()
 {
 	_sendVec.clear();
 	for (int i = PokerType::Diamond; i <= PokerType::Spade; i++)
@@ -32,7 +32,7 @@ void PokerLogic::createSendVector()
 	random_shuffle(_sendVec.begin(), _sendVec.end());
 }
 
-void PokerLogic::createLandlordVector()
+void Situation::createLandlordVector()
 {
 	if (_sendVec.empty()) return;
 	vector<int> indexVec = RandomNotRepeat(0, 53, 3);
@@ -43,7 +43,7 @@ void PokerLogic::createLandlordVector()
 	sort(_landlordVec.begin(), _landlordVec.end(), less<Poker>());
 }
 
-void PokerLogic::createPlayer()
+void Situation::createPlayer()
 {
 	for (int i = 0; i <= 2; i++)
 	{
@@ -51,7 +51,7 @@ void PokerLogic::createPlayer()
 	}
 }
 
-void PokerLogic::createHandVector()
+void Situation::createHandVector()
 {
 	vector<vector<Poker>> handVec;
 	for (int i = 0; i < 3; i++)
@@ -87,7 +87,7 @@ void PokerLogic::createHandVector()
 	}
 }
 
-int PokerLogic::random(int min, int max)
+int Situation::random(int min, int max)
 {
 	if (min == max) return min;
 	mt19937 gen(_rd());
@@ -95,7 +95,7 @@ int PokerLogic::random(int min, int max)
 	return dist(gen);
 }
 
-std::vector<int> PokerLogic::RandomNotRepeat(int min, int max, int num)
+std::vector<int> Situation::RandomNotRepeat(int min, int max, int num)
 {
 	set<int> randomSet;
 	while (randomSet.size() != num)
@@ -106,7 +106,7 @@ std::vector<int> PokerLogic::RandomNotRepeat(int min, int max, int num)
 	return vector<int>(randomSet.begin(), randomSet.end());
 }
 
-void PokerLogic::printPokerVector(std::string title, const std::vector<Poker>& pokerVector)
+void Situation::printPokerVector(std::string title, const std::vector<Poker>& pokerVector)
 {
 	cout << "print " + title + " vector" << endl;
 	int count = 0;

@@ -17,47 +17,63 @@ void Player::setHandVector(const std::vector<Poker>& handCardVec)
 	sort(_handVec.begin(), _handVec.end(), greater<Poker>());
 }
 
-void Player::addCard(const std::vector<Poker>& addPokerVec)
+void Player::addPoker(std::vector<Poker>& srcPokerVec, const std::vector<Poker>& addPokerVec)
 {
 	if (addPokerVec.empty()) return;
-	_handVec.insert(_handVec.end(), addPokerVec.begin(), addPokerVec.end());
-	sort(_handVec.begin(), _handVec.end(), greater<Poker>());
+	srcPokerVec.insert(srcPokerVec.end(), addPokerVec.begin(), addPokerVec.end());
+	sort(srcPokerVec.begin(), srcPokerVec.end(), greater<Poker>());
 }
 
-void Player::removeCard(std::vector<Poker>& removePokerVec)
+void Player::removePoker(std::vector<Poker>& srcPokerVec, std::vector<Poker>& removePokerVec)
 {
 	if (removePokerVec.empty()) return;
-	sort(removePokerVec.begin(), removePokerVec.end(), greater<Poker>());
-	vector<Poker> temp;
-	auto iter = _handVec.begin();
+
+	auto iter = srcPokerVec.begin();
 	for (auto &m : removePokerVec)
 	{
-		while (iter != _handVec.end())
+		while (iter != srcPokerVec.end())
 		{
 			if (*iter == m)
 			{
-				++iter;
-				break;
+				iter = srcPokerVec.erase(iter);
 			}
-			temp.push_back(*iter);
-			++iter;
+			else
+			{
+				++iter;
+			}
+			break;
 		}
 	}
-	_handVec = temp;
+}
+
+void Player::removeSamePoker(std::vector<Poker>& srcPokerVec, std::vector<int>& removePokerVec)
+{
+	if (removePokerVec.empty()) return;
+
+	auto iter = srcPokerVec.begin();
+	for (auto m : removePokerVec)
+	{
+		while (iter != srcPokerVec.end())
+		{
+			if (iter->getPokerValue() == m)
+			{
+				while (iter->getPokerValue() == m && iter != srcPokerVec.end())
+				{
+					iter = srcPokerVec.erase(iter);
+				}
+				break;
+			}
+			else
+			{
+				++iter;
+			}
+		}
+	}
 }
 
 int Player::callScore()
 {
-	if (_index + 1 > _currentScore)
-	{
-		return _index + 1;
-	}
 	return 0;
-}
-
-void Player::setCurrentScore(int score)
-{
-	_currentScore = score;
 }
 
 std::vector<Poker> Player::outCard(std::vector<Poker>& input)
@@ -70,6 +86,9 @@ PokerCombineType Player::getPokerCombineType(std::vector<Poker>& pokerVec)
 	if (pokerVec.empty()) return PokerCombineType::CombineNull;
 	uint32_t size = pokerVec.size();
 	if (size == 1) return PokerCombineType::Single;
+
+	sort(pokerVec.begin(), pokerVec.end(), greater<Poker>());
+
 	if (size == 2)
 	{
 		if (pokerVec[0].getPokerValue() + pokerVec[1].getPokerValue() == PokerValue::BlackJoker + PokerValue::RedJoker)
@@ -147,10 +166,9 @@ PokerCombineType Player::getPokerCombineType(std::vector<Poker>& pokerVec)
 	return PokerCombineType::CombineNull;
 }
 
-int Player::getPokerSameNum(std::vector<Poker>& pokerVec, int sameCount)
+int Player::getPokerSameNum(std::vector<Poker>& pokerVec, unsigned int sameCount)
 {
 	if (pokerVec.empty()) return 0;
-	sort(pokerVec.begin(), pokerVec.end(), greater<Poker>());
 	Poker& poker = pokerVec[0];
 	int count = 0;
 	int sameNum = 0;
@@ -170,10 +188,33 @@ int Player::getPokerSameNum(std::vector<Poker>& pokerVec, int sameCount)
 	return sameNum;
 }
 
+std::vector<int> Player::getPokerSameVector(std::vector<Poker>& pokerVec, unsigned int sameCount)
+{
+	vector<int> temp;
+	if (!pokerVec.empty())
+	{
+		Poker& poker = pokerVec[0];
+		int count = 0;
+		for (auto &m : pokerVec)
+		{
+			if (poker.getPokerValue() == m.getPokerValue())
+			{
+				++count;
+			}
+			else if (count == sameCount)
+			{
+				temp.push_back(m.getPokerValue());
+				count = 1;
+			}
+			poker = m;
+		}
+	}
+	return temp;
+}
+
 int Player::getLinkNum(std::vector<Poker>& pokerVec, int sameCount)
 {
 	if (pokerVec.empty()) return 0;
-	sort(pokerVec.begin(), pokerVec.end(), greater<Poker>());
 	Poker& poker = pokerVec[0];
 	int count = 0;
 	int linkNum = 0;
@@ -200,13 +241,80 @@ int Player::getLinkNum(std::vector<Poker>& pokerVec, int sameCount)
 	return linkNum + 1;
 }
 
+std::vector<std::vector<int>> Player::getLinkVector(std::vector<int>& pokerVec)
+{
+	vector<vector<int>> result;
+	if (!pokerVec.empty())
+	{
+		auto iter = pokerVec.begin();
+		while (iter != pokerVec.end())
+		{
+			vector<int> temp;
+			int front = *iter;
+			temp.push_back(front);
+			for (auto next = iter + 1; next != pokerVec.end(); ++next)
+			{
+				if (front = *next + 1)
+				{
+					temp.push_back(*next);
+					front = *next;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			int size = temp.size();
+			if (size > 1)
+			{
+				iter += size - 1;
+				result.push_back(temp);
+			}
+		}
+	}
+	
+	return result;
+}
+
 bool Player::containKingBomb(std::vector<Poker>& pokerVec)
 {
 	if (pokerVec.size() >= 2)
 	{
-		sort(pokerVec.begin(), pokerVec.end(), greater<Poker>());
 		return (pokerVec[0].getPokerValue() + pokerVec[1].getPokerValue() == PokerValue::BlackJoker + PokerValue::RedJoker);
 	}
 	return false;
+}
+
+void Player::analysisPoker()
+{
+	vector<Poker> tempHandVec = _handVec;
+	sort(tempHandVec.begin(), tempHandVec.end(), greater<Poker>());
+	//王炸
+	if (containKingBomb(tempHandVec))
+	{
+		removeSamePoker(tempHandVec, { PokerValue::RedJoker, PokerValue::BlackJoker });
+	}
+
+	//炸弹
+	vector<int> temp = getPokerSameVector(tempHandVec, 4);
+	if (!temp.empty())
+	{
+		removeSamePoker(tempHandVec, temp);
+	}
+
+	//三张
+	temp = getPokerSameVector(tempHandVec, 3);
+	if (!temp.empty())
+	{
+		vector<vector<int>> threeLine = getLinkVector(temp);
+		if (!threeLine.empty())
+		{
+
+		}
+	}
+
+	//顺子
+
 }
 
