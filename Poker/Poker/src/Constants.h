@@ -60,7 +60,7 @@ enum PokerWeight
 	WeightDouble = 2,
 	WeightThree = 3,
 	WeightSinleLine = 4, //每多一张牌,权值+1
-	WeightSinleLine = 5, //每多一对牌,权值+2
+	WeightDoubleLine = 5, //每多一对牌,权值+2
 	WeightPlane = 6, //每一对飞机，权值在基础上+3
 	WeightBomb = 7, //炸弹
 };

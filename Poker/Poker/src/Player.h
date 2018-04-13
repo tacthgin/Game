@@ -28,11 +28,19 @@ public:
 	std::vector<int> getPokerSameVector(std::vector<Poker>& pokerVec, unsigned int sameCount);
 	//得到连对数目
 	int getLinkNum(std::vector<Poker>& pokerVec, int sameCount);
-	std::vector<std::vector<int>> getLinkVector(std::vector<int>& pokerVec);
+	//得到一个牌数组中的顺子或者对子或者三张
+	std::vector<std::vector<int>> getLinkVector(std::vector<int>& pokerVec, int num);
+	//得到一个牌数组中的所有顺子的牌
+	std::vector<int> getLinkVecotr(std::vector<Poker>& pokerVec);
+	//返回不包含的元素
+	std::vector<int> noContain(const std::vector<int>& pokerVec, const std::vector<int>& compareVec);
 	//是否包含王炸
 	bool containKingBomb(std::vector<Poker>& pokerVec);
 
+	std::vector<int> getSinglePoker(std::vector<int>& pokerVec);
+	std::vector<int> getNoRepeatPoker(std::vector<int>& pokerVec);
 	void analysisPoker();
+	void analySisPoker1();
 private:
 	int _index = {0};
 	bool _landlord = { false };
