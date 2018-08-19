@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿ using System.Collections.Generic;
 using UnityEngine;
 
 public class ChessBoard : MonoBehaviour
@@ -25,7 +25,6 @@ public class ChessBoard : MonoBehaviour
         chessLogic.drawSelectHandle += ShowSelect;
         chessLogic.movePieceHandle += MovePiece;
         chessLogic.drawBoardHandle += DrawCurrentBoard;
-        InitView();
     }
 
 	void Update ()
@@ -58,9 +57,12 @@ public class ChessBoard : MonoBehaviour
         }
 	}
 
-    void InitView()
+    /// <summary>
+    /// 创建选中标志
+    /// </summary>
+    void createSelect()
     {
-        if(selectSprite == null)
+        if (selectSprite == null)
         {
             selectSprite = Instantiate(selectGameObject);
             selectSprite.transform.parent = transform;
@@ -226,13 +228,35 @@ public class ChessBoard : MonoBehaviour
         }
     }
 
+	/// <summary>
+	/// 画当前棋盘
+	/// </summary>
+	/// <param name="flip">If set to <c>true</c> flip.</param>
     void DrawCurrentBoard(bool flip)
     {
         DrawBoard(chessLogic.MySituation.CurrentBoard, flip);
     }
 
+	/// <summary>
+	/// 移除板上所有东西
+	/// </summary>
+	void DeleteAll()
+	{
+        pieceDict.Clear();
+        foreach (Transform child in transform)
+		{
+			Destroy (child.gameObject);
+		}
+        selectSprite = null;
+    }                                                                                                                                             
+
+	/// <summary>
+	/// 开始按钮
+	/// </summary>
     public void OnStartupClick()
     {
-        chessLogic.Startup(false);
+		DeleteAll ();
+        createSelect();
+        chessLogic.Startup(true);
     }
 }
