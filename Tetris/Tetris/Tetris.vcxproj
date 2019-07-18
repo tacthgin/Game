@@ -18,6 +18,26 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Tetris.cpp" />
+    <ClCompile Include="src\UIHandle.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Tetris.h" />
+    <ClInclude Include="src\UIHandle.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\bg.png" />
+    <Image Include="resources\blue.png" />
+    <Image Include="resources\girl.png" />
+    <Image Include="resources\gray.png" />
+    <Image Include="resources\green.png" />
+    <Image Include="resources\orange.png" />
+    <Image Include="resources\purple.png" />
+    <Image Include="resources\red.png" />
+    <Image Include="resources\yellow.png" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{8FCADB2D-4F69-4AD2-864D-CB17681DC1C4}</ProjectGuid>
@@ -110,9 +130,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
