@@ -3,7 +3,7 @@
 
 #include <time.h>
 #include "Tetris.h"
-#include "resource.h"
+#include "../resources/resource.h"
 
 class UIHandle
 {

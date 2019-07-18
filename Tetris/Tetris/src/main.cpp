@@ -1,7 +1,7 @@
-﻿#include "Uihandle.h"
+﻿#include "UIHandle.h"
 
 const int WINDOW_STYLES = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX;
-const char * const elsAbout = "俄罗斯方块\n                        by 小白\n";
+const char* const elsAbout = "俄罗斯方块\n                        by 小白\n";
 const int els_width = 480;
 const int els_height = 540;
 static UIHandle * pInstance;
