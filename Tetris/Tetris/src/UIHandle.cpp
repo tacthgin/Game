@@ -26,7 +26,7 @@ void UIHandle::InitRes(HINSTANCE hinstance,HWND hwnd)
 	m_hinst = hinstance;
 	m_hWnd = hwnd;
 	m_hDC = GetDC(m_hWnd);
-	m_bmpBoard = LoadResBmp(IDB_BOARD);
+	m_bmpBoard = LoadResBmp(IDB_BG);
 	m_bmpGirl = LoadResBmp(IDB_GIRL);
 	for (int i = 0; i < 7; i++)
 	{
@@ -185,7 +185,7 @@ BOOL UIHandle::HitTest(int xx, int yy)
 
 	for (int i = 0; i < 4; i++)
 	{
-		int x = xx, int y = yy;
+		int x = xx, y = yy;
 		x += p[i].x;
 		y += p[i].y;
 
@@ -326,13 +326,13 @@ void UIHandle::SetTetrisScoreAndLevel(HDC dc)
 {
 	WCHAR ScoreStr[15] = L"得分:";
 	WCHAR ScoreStr1[10] = L"";
-	_itow(m_TetrisScore, ScoreStr1, 10);
-	wcscat(ScoreStr, ScoreStr1);
+	_itow_s(m_TetrisScore, ScoreStr1, 10);
+	wcscat_s(ScoreStr, ScoreStr1);
 	TextOutW(dc, 360, 215, ScoreStr, wcslen(ScoreStr));
 	WCHAR LevelStr[15] = L"等级:";
 	WCHAR LevelStr1[10] = L"";
-	_itow(m_TetrisLevel, LevelStr1, 10);
-	wcscat(LevelStr, LevelStr1);
+	_itow_s(m_TetrisLevel, LevelStr1, 10);
+	wcscat_s(LevelStr, LevelStr1);
 	TextOutW(dc, 360, 235, LevelStr, wcslen(LevelStr));
 }
 

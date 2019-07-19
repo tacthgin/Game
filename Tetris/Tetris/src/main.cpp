@@ -49,10 +49,10 @@ LRESULT CALLBACK WndProc(
 	case WM_COMMAND:
 		switch(LOWORD(wParam))
 		{
-		case IDM_QUIT:
+		case ID_QUIT:
 			DestroyWindow(hwnd);
 			break;
-		case IDM_HELP:
+		case ID_HELP:
 			mbp.cbSize = sizeof(MSGBOXPARAMS);
 			mbp.hwndOwner = hwnd;
 			mbp.hInstance = (HINSTANCE)GetModuleHandle(NULL);
@@ -65,7 +65,7 @@ LRESULT CALLBACK WndProc(
 			mbp.dwLanguageId = 0;
 			MessageBoxIndirect(&mbp);
 			break;
-		case IDM_BEGIN:
+		case ID_BEGIN:
 			{	
 				pInstance->SetGameBegin(TRUE);
 				pInstance->Init_Ui(TRUE);
@@ -127,7 +127,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	wce.hIcon = (HICON) LoadImage(hInstance, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 32, 32, LR_SHARED);
 	wce.hCursor = (HCURSOR) LoadImage(NULL, IDC_ARROW, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
 	wce.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
-	wce.lpszMenuName = MAKEINTRESOURCE(IDR_MENU1);
+	wce.lpszMenuName = MAKEINTRESOURCE(IDM_MENU);
 	wce.lpszClassName = "ELS";
 	wce.hIconSm = (HICON) LoadImage(hInstance, MAKEINTRESOURCE(IDI_ICON1), IMAGE_ICON, 16, 16, LR_SHARED);
 	RegisterClassEx(&wce);

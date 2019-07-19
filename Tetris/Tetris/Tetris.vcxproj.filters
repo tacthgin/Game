@@ -30,8 +30,8 @@
     <ClInclude Include="src\UIHandle.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="resources\resource.h">
-      <Filter>资源文件\resources</Filter>
+    <ClInclude Include="resource.h">
+      <Filter>资源文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -62,10 +62,40 @@
     <Image Include="resources\yellow.png">
       <Filter>资源文件\resources</Filter>
     </Image>
+    <Image Include="resources\icon1.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="resources\BG1.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="resources\blue.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="resources\girl.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="resources\gray.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="resources\green.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="resources\orange.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="resources\purple.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="resources\red.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="resources\yellow.bmp">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resources\Tetris.rc">
-      <Filter>资源文件\resources</Filter>
+    <ResourceCompile Include="Tetris.rc">
+      <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@
 
 #include <time.h>
 #include "Tetris.h"
-#include "../resources/resource.h"
+#include "../resource.h"
 
 class UIHandle
 {
@@ -36,8 +36,9 @@ public:
 		if (m_pInstance == NULL)
 		{
 			m_pInstance = new UIHandle();
-			return m_pInstance;
 		}
+
+		return m_pInstance;
 	}
 private:	
 	HBITMAP m_bmpBoard, m_bmpClear, m_bmpTetris[7], m_bmpGirl;
