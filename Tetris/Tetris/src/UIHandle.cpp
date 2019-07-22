@@ -1,121 +1,121 @@
 ﻿#include "Uihandle.h"
 
-UIHandle * UIHandle::m_pInstance = NULL;
+UIHandle * UIHandle::_instance = NULL;
 
-UIHandle::UIHandle() : m_TetrisLevel(1), m_TetrisScore(0), m_GameTime(1000),m_GameBegin(FALSE)
+UIHandle::UIHandle() : _tetrisLevel(1), _tetrisScore(0), _gameTime(1000),_gameBegin(FALSE)
 {
 	srand((unsigned)time(NULL));
-	m_NextTetris.SetTetrisProperty(rand() % 7, rand() % 4);
-	memset(game_map, -1, sizeof(int)* 10 * 18);
+	_nextTetris.SetTetrisProperty(rand() % 7, rand() % 4);
+	memset(_gameMap, -1, sizeof(int)* 10 * 18);
 }
 
 UIHandle::~UIHandle()
 {
-	ReleaseDC(m_hWnd, m_hDC);
-	delete m_pInstance;
+	ReleaseDC(_hWnd, _hDC);
+	delete _instance;
 	for (int i = 0; i < 7; i++)
 	{
-		DeleteObject(m_bmpTetris[i]);
+		DeleteObject(_bmpTetris[i]);
 	}
-	DeleteObject(m_bmpGirl);
-	DeleteObject(m_bmpBoard);
+	DeleteObject(_bmpGirl);
+	DeleteObject(_bmpBoard);
 }
 
 void UIHandle::InitRes(HINSTANCE hinstance,HWND hwnd)
 {
-	m_hinst = hinstance;
-	m_hWnd = hwnd;
-	m_hDC = GetDC(m_hWnd);
-	m_bmpBoard = LoadResBmp(IDB_BG);
-	m_bmpGirl = LoadResBmp(IDB_GIRL);
+	_hinst = hinstance;
+	_hWnd = hwnd;
+	_hDC = GetDC(_hWnd);
+	_bmpBoard = LoadResBmp(IDB_BG);
+	_bmpGirl = LoadResBmp(IDB_GIRL);
 	for (int i = 0; i < 7; i++)
 	{
-		m_bmpTetris[i] = LoadResBmp(IDB_BLUE + i);
+		_bmpTetris[i] = LoadResBmp(IDB_BLUE + i);
 	}	
 }
-void UIHandle::Init_Ui(BOOL Restart)
+void UIHandle::InitUI(BOOL Restart)
 {
 	if (Restart)
 	{
-		memset(game_map, -1, sizeof(int)* 10 * 18);
-		m_TetrisLevel = 1;
-		m_TetrisScore = 0;
-		m_GameTime = 1000;
-		InvalidateRect(m_hWnd, NULL, FALSE);
+		memset(_gameMap, -1, sizeof(int)* 10 * 18);
+		_tetrisLevel = 1;
+		_tetrisScore = 0;
+		_gameTime = 1000;
+		InvalidateRect(_hWnd, NULL, FALSE);
 	}else
 	{
 		RECT rect = {360, 30, 480, 150};
-		InvalidateRect(m_hWnd, &rect, FALSE);
+		InvalidateRect(_hWnd, &rect, FALSE);
 	}
-	m_StartPoint.x = 3;
-	m_StartPoint.y = 0;
+	_startPoint.x = 3;
+	_startPoint.y = 0;
 	srand((unsigned)time(NULL));
-	m_CurretTetris = m_NextTetris;
-	m_NextTetris.SetTetrisProperty(rand() % 7, rand() % 4);
+	_curretTetris = _nextTetris;
+	_nextTetris.SetTetrisProperty(rand() % 7, rand() % 4);
 	DrawGameMap();
 }
 
-void UIHandle::down()
+void UIHandle::Down()
 {
 	ClearGameMap();
-	if (HitTest(m_StartPoint.x, m_StartPoint.y + 1))
+	if (HitTest(_startPoint.x, _startPoint.y + 1))
 	{	
 		DrawGameMap(TRUE);
-		m_StartPoint.y += 1;
+		_startPoint.y += 1;
 		DrawGameMap();
 	}else
 	{
 		SetGameMap();
 		if (-2 == GetCurrentScore())
 		{
-			m_GameBegin = FALSE;
-			KillTimer(m_hWnd, 1);
-			GameOver(m_hDC);		
+			_gameBegin = FALSE;
+			KillTimer(_hWnd, 1);
+			GameOver(_hDC);		
 			return;
 		}
-		Init_Ui();
+		InitUI();
 	}
 }
 
-void UIHandle::left()
+void UIHandle::Left()
 {
 	ClearGameMap();
-	if (HitTest(m_StartPoint.x - 1, m_StartPoint.y))
+	if (HitTest(_startPoint.x - 1, _startPoint.y))
 	{
 		DrawGameMap(TRUE);
-		m_StartPoint.x -= 1;
+		_startPoint.x -= 1;
 		DrawGameMap();
 	}
 	else
 		SetGameMap();
 }
 
-void UIHandle::right()
+void UIHandle::Right()
 {
 	ClearGameMap();
-	if (HitTest(m_StartPoint.x + 1, m_StartPoint.y))
+	if (HitTest(_startPoint.x + 1, _startPoint.y))
 	{
 		DrawGameMap(TRUE);
-		m_StartPoint.x += 1;
+		_startPoint.x += 1;
 		DrawGameMap();
 	}
 	else
 		SetGameMap();
 }
 
-void UIHandle::up()
+void UIHandle::Up()
 {
 	ClearGameMap();	
-	int TetrisChange = m_CurretTetris.GetTetrisChange();
-	int TetrisType = m_CurretTetris.GetTetrisType();
-	m_CurretTetris.SetTetrisProperty(TetrisType, TetrisChange + 1);
-	if (HitTest(m_StartPoint.x, m_StartPoint.y))
+	int TetrisChange = _curretTetris.GetTetrisChange();
+	int TetrisType = _curretTetris.GetTetrisType();
+	_curretTetris.SetTetrisProperty(TetrisType, TetrisChange + 1);
+	if (HitTest(_startPoint.x, _startPoint.y))
 	{
 		DrawGameMap(TRUE);
 		DrawGameMap();
 	}else
 	{
-		m_CurretTetris.SetTetrisProperty(TetrisType, TetrisChange);
+		_curretTetris.SetTetrisProperty(TetrisType, TetrisChange);
 		SetGameMap();
 	}
 }
@@ -124,26 +124,26 @@ void UIHandle::DrawGameMap(BOOL Clear)
 {
 	if(Clear)
 	{
-		RECT rect = {m_StartPoint.x * 30, m_StartPoint.y * 30, \
-				m_StartPoint.x * 30 + 120, m_StartPoint.y * 30 + 120};			
-		InvalidateRect(m_hWnd, &rect, FALSE);
+		RECT rect = {_startPoint.x * 30, _startPoint.y * 30, \
+				_startPoint.x * 30 + 120, _startPoint.y * 30 + 120};			
+		InvalidateRect(_hWnd, &rect, FALSE);
 	}
 	else
 	{
 		const POINT * p = NULL;
 		int xx = 0;
 		int yy = 0;
-		int TetrisType = m_CurretTetris.GetTetrisType();
-		p = m_CurretTetris.GetTetrisArray();
+		int TetrisType = _curretTetris.GetTetrisType();
+		p = _curretTetris.GetTetrisArray();
 		HDC memdc;
-		memdc = CreateCompatibleDC(m_hDC);
+		memdc = CreateCompatibleDC(_hDC);
 
 		for (int i = 0; i < 4; i++)
 		{
-			xx = (m_StartPoint.x + p[i].x);
-			yy = (m_StartPoint.y + p[i].y);
-			game_map[xx][yy] = TetrisType;
-			DrawTetris(m_hDC, memdc, xx * 30, yy * 30, m_bmpTetris[TetrisType]);
+			xx = (_startPoint.x + p[i].x);
+			yy = (_startPoint.y + p[i].y);
+			_gameMap[xx][yy] = TetrisType;
+			DrawTetris(_hDC, memdc, xx * 30, yy * 30, _bmpTetris[TetrisType]);
 		}
 		DeleteDC(memdc);
 	}
@@ -152,36 +152,36 @@ void UIHandle::DrawGameMap(BOOL Clear)
 void UIHandle::SetGameMap()
 {
 	const POINT * p = NULL;
-	p = m_CurretTetris.GetTetrisArray();
-	int TetrisType = m_CurretTetris.GetTetrisType();
+	p = _curretTetris.GetTetrisArray();
+	int TetrisType = _curretTetris.GetTetrisType();
 	int xx = 0;
 	int yy = 0;
 	for (int i = 0; i < 4; i++)
 	{
-		xx = (m_StartPoint.x + p[i].x);
-		yy = (m_StartPoint.y + p[i].y);
-		game_map[xx][yy] = TetrisType;
+		xx = (_startPoint.x + p[i].x);
+		yy = (_startPoint.y + p[i].y);
+		_gameMap[xx][yy] = TetrisType;
 	}
 }
 
 void UIHandle::ClearGameMap()
 {
 	const POINT * p = NULL;
-	p = m_CurretTetris.GetTetrisArray();
+	p = _curretTetris.GetTetrisArray();
 	int xx = 0;
 	int yy = 0;
 	for (int i = 0; i < 4; i++)
 	{
-		xx = (m_StartPoint.x + p[i].x);
-		yy = (m_StartPoint.y + p[i].y);
-		game_map[xx][yy] = -1;
+		xx = (_startPoint.x + p[i].x);
+		yy = (_startPoint.y + p[i].y);
+		_gameMap[xx][yy] = -1;
 	}
 }
 
 BOOL UIHandle::HitTest(int xx, int yy)
 {
 	const POINT * p = NULL;
-	p = m_CurretTetris.GetTetrisArray();
+	p = _curretTetris.GetTetrisArray();
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -189,7 +189,7 @@ BOOL UIHandle::HitTest(int xx, int yy)
 		x += p[i].x;
 		y += p[i].y;
 
-		if (-1 != game_map[x][y])
+		if (-1 != _gameMap[x][y])
 		{
 			return FALSE;
 		}else if (x < 0 || x >= 10 || y < 0 || y >= 18)
@@ -207,7 +207,7 @@ int UIHandle::GetCurrentScore()
 	int i = 0, j = 0;
 	for (j = 0; j < 10; j++)
 	{
-		if (game_map[j][0] != -1)
+		if (_gameMap[j][0] != -1)
 			return -2;
 	}
 
@@ -215,7 +215,7 @@ int UIHandle::GetCurrentScore()
 	{
 		for (j = 0; j < 10; j++ )
 		{
-			if (game_map[j][i] == -1 )
+			if (_gameMap[j][i] == -1 )
 			{
 				EmptyCount++;
 				if (EmptyCount == 9)
@@ -250,33 +250,33 @@ int UIHandle::GetCurrentScore()
 	{
 		for (j = 0; j < 10; j++)
 		{
-			game_map[j][i] = -1;
+			_gameMap[j][i] = -1;
 		}
 	}
 	for (i = ScoreLine - ScoreCount; i > EmptyLine; i--)
 	{
 		for (j = 0; j < 10; j++)
 		{
-			game_map[j][i + ScoreCount] = game_map[j][i];
-			game_map[j][i] = -1;
+			_gameMap[j][i + ScoreCount] = _gameMap[j][i];
+			_gameMap[j][i] = -1;
 		}
 	}
 
 	if (4 == ScoreCount)
 	{
-		m_TetrisScore += 5;
+		_tetrisScore += 5;
 	}
 	else
-		m_TetrisScore += ScoreCount;
+		_tetrisScore += ScoreCount;
 
-	if (100 * m_TetrisLevel == m_TetrisScore)
+	if (100 * _tetrisLevel == _tetrisScore)
 	{
-		m_TetrisLevel++;
-		m_GameTime -= 100 * m_TetrisLevel;
-		if (m_GameTime < 50)
-			m_GameTime = 50;
+		_tetrisLevel++;
+		_gameTime -= 100 * _tetrisLevel;
+		if (_gameTime < 50)
+			_gameTime = 50;
 	}
-	Paint(m_hDC);
+	Paint(_hDC);
 	return 0;	
 }
 
@@ -291,20 +291,20 @@ void UIHandle::Paint(HDC dc)
 	HDC memdc;
 	memdc = CreateCompatibleDC(dc);
 
-	SelectObject(memdc, m_bmpBoard);                     //底图
+	SelectObject(memdc, _bmpBoard);                     //底图
 	BitBlt(dc, 0, 0, 300, 540, memdc, 0, 0, SRCCOPY);
 	SetStretchBltMode(dc, STRETCH_HALFTONE);
-	SelectObject(memdc, m_bmpGirl);
+	SelectObject(memdc, _bmpGirl);
 	StretchBlt(dc, 300, 0, 180, 540, memdc, 0, 0, 497, 747, SRCCOPY);
 	int i, xx, yy;
-	int j = m_NextTetris.GetTetrisType();
-	const POINT * p = m_NextTetris.GetTetrisArray();
+	int j = _nextTetris.GetTetrisType();
+	const POINT * p = _nextTetris.GetTetrisArray();
 	
 	for (i = 0; i < 4; i++)
 	{
 		xx = (12 + p[i].x);
 		yy = (1 + p[i].y);
-		DrawTetris(dc, memdc, xx * 30, yy * 30, m_bmpTetris[j]);
+		DrawTetris(dc, memdc, xx * 30, yy * 30, _bmpTetris[j]);
 	}
 	
 	SetTetrisScoreAndLevel(dc);
@@ -313,9 +313,9 @@ void UIHandle::Paint(HDC dc)
 	{
 		for (j = 0; j < 10; j++)
 		{
-			if (game_map[j][i] != -1)
+			if (_gameMap[j][i] != -1)
 			{
-				DrawTetris(dc, memdc, 30 * j, 30 * i, m_bmpTetris[game_map[j][i]]);
+				DrawTetris(dc, memdc, 30 * j, 30 * i, _bmpTetris[_gameMap[j][i]]);
 			}
 		}
 	}
@@ -326,12 +326,12 @@ void UIHandle::SetTetrisScoreAndLevel(HDC dc)
 {
 	WCHAR ScoreStr[15] = L"得分:";
 	WCHAR ScoreStr1[10] = L"";
-	_itow_s(m_TetrisScore, ScoreStr1, 10);
+	_itow_s(_tetrisScore, ScoreStr1, 10);
 	wcscat_s(ScoreStr, ScoreStr1);
 	TextOutW(dc, 360, 215, ScoreStr, wcslen(ScoreStr));
 	WCHAR LevelStr[15] = L"等级:";
 	WCHAR LevelStr1[10] = L"";
-	_itow_s(m_TetrisLevel, LevelStr1, 10);
+	_itow_s(_tetrisLevel, LevelStr1, 10);
 	wcscat_s(LevelStr, LevelStr1);
 	TextOutW(dc, 360, 235, LevelStr, wcslen(LevelStr));
 }

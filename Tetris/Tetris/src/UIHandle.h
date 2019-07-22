@@ -11,14 +11,14 @@ public:
 	~UIHandle();
 	HBITMAP LoadResBmp(int nResId)
 	{
-		return (HBITMAP) LoadImage(m_hinst, MAKEINTRESOURCE(nResId), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
+		return (HBITMAP) LoadImage(_hinst, MAKEINTRESOURCE(nResId), IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
 	}
 	void InitRes(HINSTANCE hinstance, HWND hwnd);
-	void Init_Ui(BOOL Restart = FALSE);
-	void left();
-	void up();
-	void right();
-	void down();
+	void InitUI(BOOL Restart = FALSE);
+	void Left();
+	void Up();
+	void Right();
+	void Down();
 	void ClearGameMap();
 	void SetGameMap();
 	void DrawGameMap(BOOL Clear = FALSE);
@@ -28,33 +28,33 @@ public:
 	void Paint(HDC dc);
 	void SetTetrisScoreAndLevel(HDC dc);
 	void GameOver(HDC dc);
-	int GetGmaeTime(){return m_GameTime;}
-	BOOL GetGameBegin(){return m_GameBegin;}
-	void SetGameBegin(BOOL GameBegin){m_GameBegin = GameBegin;}
+	int GetGmaeTime(){return _gameTime;}
+	BOOL GetGameBegin(){return _gameBegin;}
+	void SetGameBegin(BOOL GameBegin){_gameBegin = GameBegin;}
 	static UIHandle * GetInstance()
 	{
-		if (m_pInstance == NULL)
+		if (_instance == NULL)
 		{
-			m_pInstance = new UIHandle();
+			_instance = new UIHandle();
 		}
 
-		return m_pInstance;
+		return _instance;
 	}
 private:	
-	HBITMAP m_bmpBoard, m_bmpClear, m_bmpTetris[7], m_bmpGirl;
-	HDC m_hDC;
-	HWND m_hWnd;
-	HINSTANCE m_hinst;
-	Tetris m_CurretTetris;
-	Tetris m_NextTetris;
-	POINT m_StartPoint;
-	int m_TetrisScore;
-	int m_TetrisLevel;
-	int m_GameTime;
-	BOOL m_GameBegin;
-	int game_map[10][18];
+	HBITMAP _bmpBoard, _bmpClear, _bmpTetris[7], _bmpGirl;
+	HDC _hDC;
+	HWND _hWnd;
+	HINSTANCE _hinst;
+	Tetris _curretTetris;
+	Tetris _nextTetris;
+	POINT _startPoint;
+	int _tetrisScore;
+	int _tetrisLevel;
+	int _gameTime;
+	BOOL _gameBegin;
+	int _gameMap[10][18];
 	UIHandle();
-	static UIHandle * m_pInstance;
+	static UIHandle * _instance;
 };
 
 #endif //_UIHANDLE_H

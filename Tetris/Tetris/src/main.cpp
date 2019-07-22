@@ -68,7 +68,7 @@ LRESULT CALLBACK WndProc(
 		case ID_BEGIN:
 			{	
 				pInstance->SetGameBegin(TRUE);
-				pInstance->Init_Ui(TRUE);
+				pInstance->InitUI(TRUE);
 				SetTimer(hwnd, 1, pInstance->GetGmaeTime(), NULL);			
 			}
 			break;
@@ -77,7 +77,7 @@ LRESULT CALLBACK WndProc(
 		case WM_TIMER:
 			{
 				KillTimer(hwnd, 1);
-				pInstance->down();
+				pInstance->Down();
 				SetTimer(hwnd, 1, pInstance->GetGmaeTime(), NULL);	
 			}
 			break;
@@ -87,16 +87,16 @@ LRESULT CALLBACK WndProc(
 				switch((unsigned int)wParam)
 				{
 				case VK_DOWN:
-					pInstance->down();
+					pInstance->Down();
 					break;
 				case VK_LEFT:
-					pInstance->left();
+					pInstance->Left();
 					break;
 				case VK_RIGHT:
-					pInstance->right();
+					pInstance->Right();
 					break;
 				case VK_UP:
-					pInstance->up();
+					pInstance->Up();
 					break;
 				}
 			}
